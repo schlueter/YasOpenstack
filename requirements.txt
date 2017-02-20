@@ -1,0 +1,6 @@
+alembic>=0.8.10
+Flask-RESTful>=0.3.5
+pbr>=1.10.0
+pylint>=1.6.5
+python-novaclient>=7.1.0
+SQLAlchemy>=1.1.5
