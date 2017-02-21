@@ -1,2 +1,6 @@
 /venv/
 *.pyc
+Facade.egg-info/
+build/
+AUTHORS
+ChangeLog
