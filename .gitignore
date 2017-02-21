@@ -4,3 +4,4 @@ Facade.egg-info/
 build/
 AUTHORS
 ChangeLog
+/.eggs/
