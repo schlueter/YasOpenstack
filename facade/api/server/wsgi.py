@@ -8,8 +8,8 @@ from flask_restful import reqparse, Api, Resource
 
 from novaclient import client
 
-
-OS_COMPUTE_VERSION = os.environ.get('OS_COMPUTE_VERSION', 2)
+# 2.38 is the highest valid version as of date of commit
+OS_COMPUTE_VERSION = os.environ.get('OS_COMPUTE_VERSION', '2.38')
 OS_USERNAME = os.environ.get('OS_USERNAME')
 OS_PASSWORD = os.environ.get('OS_PASSWORD')
 OS_PROJECT_NAME = os.environ.get('OS_PROJECT_NAME')
