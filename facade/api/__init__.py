@@ -9,6 +9,7 @@ from flask_restful import reqparse, Api, Resource
 from novaclient import client
 
 # 2.38 is the highest valid version as of date of commit
+PORT=os.environ.get('FACADE_PORT', 5001)
 OS_COMPUTE_VERSION = os.environ.get('OS_COMPUTE_VERSION', '2.38')
 OS_USERNAME = os.environ.get('OS_USERNAME')
 OS_PASSWORD = os.environ.get('OS_PASSWORD')
@@ -28,6 +29,13 @@ NOVA = client.Client(version=OS_COMPUTE_VERSION,
 class Ping(Resource):
     def get(self):
         return {"response": "pong"}
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("message")
+        args = parser.parse_args()
+        return {"response": args["message"]}
+
 
 class Server(Resource):
     def post(self, name, creator):
@@ -59,14 +67,10 @@ class ServerList(Resource):
         return [server.to_dict() for server in NOVA.servers.list()], 200
 
 def wsgi_app():
-
     app = Flask(__name__)
     api = Api(app)
-
-    parser = reqparse.RequestParser()
-    parser.add_argument('task')
 
     api.add_resource(Ping, '/ping')
     api.add_resource(ServerList, '/server/list')
 
-    app.run(debug=True)
+    app.run(port=PORT, debug=True)
