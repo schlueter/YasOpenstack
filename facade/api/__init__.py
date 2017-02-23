@@ -6,25 +6,12 @@ import os
 from flask import Flask
 from flask_restful import reqparse, Api, Resource
 
-from novaclient import client
+from facade.openstack.server import ServerManager
 
 # 2.38 is the highest valid version as of date of commit
-PORT=os.environ.get('FACADE_PORT', 5001)
-OS_COMPUTE_VERSION = os.environ.get('OS_COMPUTE_VERSION', '2.38')
-OS_USERNAME = os.environ.get('OS_USERNAME')
-OS_PASSWORD = os.environ.get('OS_PASSWORD')
-OS_PROJECT_NAME = os.environ.get('OS_PROJECT_NAME')
-OS_AUTH_URL = os.environ.get('OS_AUTH_URL')
-OS_PROJECT_DOMAIN_NAME = os.environ.get('OS_PROJECT_DOMAIN_NAME', 'default')
-OS_USER_DOMAIN_NAME = os.environ.get('OS_USER_DOMAIN_NAME', 'default')
+PORT = os.environ.get('FACADE_PORT', 5001)
 
-NOVA = client.Client(version=OS_COMPUTE_VERSION,
-                     username=OS_USERNAME,
-                     password=OS_PASSWORD,
-                     project_name=OS_PROJECT_NAME,
-                     auth_url=OS_AUTH_URL,
-                     project_domain_name=OS_PROJECT_DOMAIN_NAME,
-                     user_domain_name=OS_USER_DOMAIN_NAME)
+servers = ServerManager()
 
 class Ping(Resource):
     def get(self):
@@ -39,9 +26,9 @@ class Ping(Resource):
 
 class Server(Resource):
     def post(self, name, creator):
-        server = NOVA.servers.create(
+        server = servers.create(
             name=name,
-            image=NOVA.glance.find_image('ubuntu/trusty64'),
+            image=serv.glance.find_image('ubuntu/trusty64'),
             flavor=[flavor for flavor in NOVA.flavors.list() if flavor.name == 'm1.big'],
             # TODO requires neutron client
             security_groups=['344188ea-7747-4a67-8517-743e99799fda'],
