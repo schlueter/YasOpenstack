@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import os
+import sys
 import time
 
 from slackclient import SlackClient
@@ -11,19 +12,6 @@ READ_WEBSOCKET_DELAY = float(os.environ.get('READ_WEBSOCKET_DELAY', 1))
 AT_BOT = "<@" + BOT_ID + ">"
 EXAMPLE_COMMAND = "do"
 BOT_NAME = 'facade'
-
-def parse_slack_output(slack_rtm_output):
-    """
-        The Slack Real Time Messaging API is an events firehose.
-        this parsing function returns None unless a message is
-        directed at the Bot, based on its ID.
-    """
-    if slack_rtm_output and len(slack_rtm_output) > 0:
-        for output in slack_rtm_output:
-            if output and 'text' in output and AT_BOT in output['text']:
-                return output['text'].split(AT_BOT)[1].strip().lower(), \
-                       output['channel']
-    return None, None
 
 class Client(object):
 
@@ -48,11 +36,31 @@ class Client(object):
             as_user=True
         )
 
+    def parse_slack_output(self, rtm_output):
+        """
+            The Slack Real Time Messaging API is an events firehose.
+            this parsing function returns None unless a message is
+            directed at the Bot, based on its ID.
+        """
+        if rtm_output and len(rtm_output) > 0:
+            for output in rtm_output:
+                if output and 'channel' in output and 'text' in output:
+                    print(f"rtm_output {rtm_output}")
+                    channel_info = self.slack_client.api_call('channels.info', channel=output.get('channel'))
+                    if channel_info.get('ok', False) and AT_BOT in output['text']:
+                        print(f"receieved message in {output['channel']} from {output['user']}: {output['text']}", file=sys.stderr)
+                        return output['text'].split(AT_BOT)[1].strip().lower(), output['channel']
+                    group_info = self.slack_client.api_call('groups.info', channel=output.get('channel'))
+                    if not channel_info.get('ok', False) and not group_info.get('ok', False):
+                        print(f"receieved direct message from {output['user']}: {output['text']}", file=sys.stderr)
+                        return output['text'].strip().lower(), output['channel']
+        return None, None
+
     def listen(self):
         if self.slack_client.rtm_connect():
             print("StarterBot connected as {}<{}> and running!".format(BOT_NAME, BOT_ID))
             while True:
-                command, channel = parse_slack_output(self.slack_client.rtm_read())
+                command, channel = self.parse_slack_output(self.slack_client.rtm_read())
                 if command and channel:
                     self.handle_command(command, channel)
                 time.sleep(READ_WEBSOCKET_DELAY)
