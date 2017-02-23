@@ -43,8 +43,11 @@ class Client(object):
             directed at the Bot, based on its ID.
         """
         if rtm_output and len(rtm_output) > 0:
-            for output in rtm_output:
-                if output and 'channel' in output and 'text' in output:
+            for output in [output for output in rtm_output
+                              if output
+                                  and 'channel' in output
+                                  and 'text' in output
+                                  and not output.get('user') == BOT_ID]:
                     print(f"rtm_output {rtm_output}")
                     channel_info = self.slack_client.api_call('channels.info', channel=output.get('channel'))
                     if channel_info.get('ok', False) and AT_BOT in output['text']:
