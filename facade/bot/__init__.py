@@ -8,6 +8,11 @@ from facade.openstack.server import ServerManager, ServersFoundException, NoServ
 server_manager = ServerManager()
 
 def list_handler(search_opts, result_fields):
+    if search_opts == 'all':
+        if not result_fields:
+            result_fields = 'all'
+        search_opts = None
+
     if search_opts:
         search_opts = dict([opt.split('=') for opt in search_opts.split(' ')])
     else:
@@ -26,9 +31,12 @@ def list_handler(search_opts, result_fields):
     server_info = {}
     for server in servers:
         name = server.get('name', 'unknown')
+        if 'all' in result_fields:
+            server_info[name] = server
+            continue
         server_info[name] = {}
         if 'addresses' in result_fields:
-            server_info[name]['addresses'] = [interface['addr'] 
+            server_info[name]['addresses'] = [interface['addr']
                                               for provider in server['addresses']
                                               for interface in server['addresses'][provider]]
             result_fields.remove('addresses')

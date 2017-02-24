@@ -11,11 +11,8 @@ from facade import log
 from facade.bot import handlers
 
 BOT_TOKEN = os.environ.get('SLACK_BOT_TOKEN')
-BOT_ID = os.environ.get('SLACK_BOT_ID')
 READ_WEBSOCKET_DELAY = float(os.environ.get('READ_WEBSOCKET_DELAY', 1))
-AT_BOT = "<@" + BOT_ID + ">"
-EXAMPLE_COMMAND = "do"
-BOT_NAME = 'facade'
+BOT_NAME = os.environ.get('SLACK_BOT_NAME')
 
 class Client(SlackClient):
 
@@ -45,8 +42,6 @@ class Client(SlackClient):
             are valid commands. If so, then acts on the commands. If not,
             returns back what it needs for clarification.
         """
-        response = "Not sure what you mean. Use the *" + EXAMPLE_COMMAND + \
-                   "* command with numbers, delimited by spaces."
 
         log(f'handling {command}')
         for regex in handlers:
@@ -76,7 +71,7 @@ class Client(SlackClient):
                               if output
                                   and 'channel' in output
                                   and 'text' in output
-                                  and not output.get('user') == BOT_ID]:
+                                  and not output.get('user') == self.bot_id]:
                 channel_info = self.api_call('channels.info', channel=output.get('channel'))
                 if channel_info.get('ok', False) and AT_BOT in output['text']:
                     log(f"receieved message in {output['channel']} from {output['user']}: {output['text']}")
@@ -89,7 +84,7 @@ class Client(SlackClient):
 
     def listen(self):
         if self.rtm_connect():
-            log("Slack bot connected as {}<{}> and running!".format(BOT_NAME, BOT_ID))
+            log("Slack bot connected as {}<{}> and running!".format(BOT_NAME, self.bot_id))
             while True:
                 command, channel = self.parse_slack_output(self.rtm_read())
                 if command and channel:
