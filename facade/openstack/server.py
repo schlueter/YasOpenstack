@@ -7,11 +7,12 @@ class ServersFoundException(Exception):
     pass
 
 class NoServersFound(ServersFoundException):
-    pass
+    def __init__(self):
+        super().__init__('No servers found matching the specified search options. Refer to <https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detail#id4|the docs> for available search parameters.')
 
 class MultipleServersFound(ServersFoundException):
     def __init__(self, servers):
-        super().__init__([dict(name=server.name, id=server.id) for server in servers])
+        super().__init__(f'Found multiple servers: {[dict(name=server.name, id=server.id) for server in servers].join(", ")}\n\nRefer to <https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detail#id4|the docs> for available search parameters to make your query more specific.')
 
 
 class ServerManager(Client):

@@ -7,30 +7,15 @@ import time
 
 from slackclient import SlackClient
 
+from facade import log
+from facade.bot import handlers
+
 BOT_TOKEN = os.environ.get('SLACK_BOT_TOKEN')
 BOT_ID = os.environ.get('SLACK_BOT_ID')
 READ_WEBSOCKET_DELAY = float(os.environ.get('READ_WEBSOCKET_DELAY', 1))
 AT_BOT = "<@" + BOT_ID + ">"
 EXAMPLE_COMMAND = "do"
 BOT_NAME = 'facade'
-
-def list_handler(target):
-    return 'listing'
-
-def launch_handler(name, branch):
-    return f'launching {name} on {branch}'
-
-def delete_handler(name):
-    return f'deleting {name}'
-
-HANDLERS = {
-    re.compile('(?:list)\ ?(\w\.)'): list_handler,
-    re.compile('(?:launch|start)\ ([-\w]+)(?:\ on\ )?([-\w]+:?[-\w]+)?'): launch_handler,
-    re.compile('(?:delete|drop|terminate|bust a cap in|pop a cap in) ([-\ \w]+)'): delete_handler
-}
-
-def log(*msgs):
-    print(*msgs, file=sys.stderr)
 
 class Client(SlackClient):
 
@@ -45,7 +30,7 @@ class Client(SlackClient):
         if api_call.get('ok'):
             # retrieve all users so we can find our bot
             users = api_call.get('members')
-            log(f"Pulling the bot's, {BOT_NAME}, ID.")
+            log(f"Pulling the ID for the bot, {BOT_NAME}.")
             for user in users:
                 if 'name' in user and user.get('name') == BOT_NAME:
                     return user.get('id')
@@ -63,13 +48,14 @@ class Client(SlackClient):
         response = "Not sure what you mean. Use the *" + EXAMPLE_COMMAND + \
                    "* command with numbers, delimited by spaces."
 
-        for regex in HANDLERS.keys():
+        log(f'handling {command}')
+        for regex in handlers:
             match = regex.match(command)
             if match:
                 groups = match.groups()
-                return self.reply(channel, HANDLERS[regex](*groups))
+                return self.reply(channel, handlers[regex](*groups))
         else:
-            response = "Sure...write some more code then I can do that!"
+            return "Sure...write some more code then I can do that!"
 
     def reply(self, channel, response):
         return self.api_call(
@@ -91,7 +77,6 @@ class Client(SlackClient):
                                   and 'channel' in output
                                   and 'text' in output
                                   and not output.get('user') == BOT_ID]:
-                log(f"rtm_output {rtm_output}")
                 channel_info = self.api_call('channels.info', channel=output.get('channel'))
                 if channel_info.get('ok', False) and AT_BOT in output['text']:
                     log(f"receieved message in {output['channel']} from {output['user']}: {output['text']}")
@@ -104,7 +89,7 @@ class Client(SlackClient):
 
     def listen(self):
         if self.rtm_connect():
-            log("StarterBot connected as {}<{}> and running!".format(BOT_NAME, BOT_ID))
+            log("Slack bot connected as {}<{}> and running!".format(BOT_NAME, BOT_ID))
             while True:
                 command, channel = self.parse_slack_output(self.rtm_read())
                 if command and channel:
@@ -118,4 +103,8 @@ def main():
     client.listen()
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        log('Caught keyboard interrupt, exiting...')
+        exit()

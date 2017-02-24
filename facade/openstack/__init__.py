@@ -1,7 +1,6 @@
 import os
 from collections import namedtuple
 
-
 from novaclient import client as novaclient
 
 
