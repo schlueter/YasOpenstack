@@ -28,7 +28,9 @@ def list_handler(search_opts, result_fields):
         name = server.get('name', 'unknown')
         server_info[name] = {}
         if 'addresses' in result_fields:
-            server_info[name]['addresses'] = [interface['addr'] for provider in server['addresses'] for interface in server['addresses'][provider]]
+            server_info[name]['addresses'] = [interface['addr'] 
+                                              for provider in server['addresses']
+                                              for interface in server['addresses'][provider]]
             result_fields.remove('addresses')
         if '_addresses' in result_fields:
             result_fields.remove('_addresses')
