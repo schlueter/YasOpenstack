@@ -9,7 +9,7 @@ from facade.openstack.yaml_file_config import YamlConfiguration
 class Client:
     def __init__(self):
         self.config = YamlConfiguration()
-        self._novaclient = novaclient.Client(
+        self._novaclient = NovaClient(
             version=self.config.compute_version,
             username=self.config.username,
             password=self.config.password,
