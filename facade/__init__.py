@@ -4,11 +4,10 @@ from pprint import pformat
 
 from yas import YasHandler, log
 
+from facade.openstack.server import ServerManager, ServersFoundException, NoServersFound
 
-def log(*msg):
-    print(*msg, file=sys.stderr)
 
-class ExampleHandler(YasHandler):
+class OpenstackHandler(YasHandler):
 
     def __init__(self):
         self.handlers = {
@@ -16,6 +15,7 @@ class ExampleHandler(YasHandler):
             re.compile('(?:launch|start|create)\ ([-\w]+)(?:\ on\ )?([-\w]+:?[-\w]+)?'): self.create_handler,
             re.compile('(?:delete|drop|terminate|bust a cap in|pop a cap in) ([-\ \w]+)'): self.delete_handler
         }
+        self.server_manager = ServerManager()
 
     def test(self, data):
         for regexp in self.handlers:
@@ -32,19 +32,48 @@ class ExampleHandler(YasHandler):
             raise HandlerError("ExampleHandler does not understand")
 
     def list_handler(self, search_opts, result_fields):
+        if search_opts == 'all':
+            if not result_fields:
+                result_fields = 'all'
+            search_opts = None
+
         if search_opts:
             search_opts = dict([opt.split('=') for opt in search_opts.split(' ')])
         else:
             search_opts = {}
-
         if result_fields:
             result_fields.split(',')
         else:
             result_fields = ['name', 'tags', 'description', 'status', 'addresses']
+        try:
+            servers = self.server_manager.findall(**search_opts)
+        except ServersFoundException as e:
+            return str(e)
 
-        return pformat((search_opts, result_fields))
+        log(f'parsing {len(servers)} servers...')
+        servers = [server.to_dict() for server in servers]
+        server_info = {}
+        for server in servers:
+            name = server.get('name', 'unknown')
+            if 'all' in result_fields:
+                server_info[name] = server
+                continue
+            server_info[name] = {}
+            if 'addresses' in result_fields:
+                server_info[name]['addresses'] = [interface['addr']
+                                                  for provider in server['addresses']
+                                                  for interface in server['addresses'][provider]]
+                result_fields.remove('addresses')
+            if '_addresses' in result_fields:
+                result_fields.remove('_addresses')
+                result_fields.append('addresses')
+            for field in result_fields:
+                server_info[name][field] = server[field]
+        return pformat(server_info)
 
     def create_handler(self, name, branch):
+        server = self.server_manager.create(name)
+        log(f'Created {server}')
         response = f'Requested creation of {name}'
         if branch:
             response += 'on {branch}'
@@ -52,6 +81,11 @@ class ExampleHandler(YasHandler):
 
 
     def delete_handler(self, name):
+        try:
+            result = self.server_manager.delete(name=f'^{name}$')
+        except ServersFoundException as e:
+            return str(e)
+        log(f'Deleted {name}')
         return f'Successfully deleted {name}.'
 
 
