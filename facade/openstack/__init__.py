@@ -1,27 +1,22 @@
 import os
 from collections import namedtuple
 
-from novaclient import client as novaclient
+from novaclient.client import Client as NovaClient
+
+from facade.openstack.yaml_file_config import YamlConfiguration
 
 
-OS_COMPUTE_VERSION = os.environ.get('OS_COMPUTE_VERSION', '2.38')
-OS_USERNAME = os.environ.get('OS_USERNAME')
-OS_PASSWORD = os.environ.get('OS_PASSWORD')
-OS_PROJECT_NAME = os.environ.get('OS_PROJECT_NAME')
-OS_AUTH_URL = os.environ.get('OS_AUTH_URL')
-OS_PROJECT_DOMAIN_NAME = os.environ.get('OS_PROJECT_DOMAIN_NAME', 'default')
-OS_USER_DOMAIN_NAME = os.environ.get('OS_USER_DOMAIN_NAME', 'default')
-
-class Client(object):
+class Client:
     def __init__(self):
+        self.config = YamlConfiguration()
         self._novaclient = novaclient.Client(
-            version=OS_COMPUTE_VERSION,
-            username=OS_USERNAME,
-            password=OS_PASSWORD,
-            project_name=OS_PROJECT_NAME,
-            auth_url=OS_AUTH_URL,
-            project_domain_name=OS_PROJECT_DOMAIN_NAME,
-            user_domain_name=OS_USER_DOMAIN_NAME
+            version=self.config.compute_version,
+            username=self.config.username,
+            password=self.config.password,
+            project_name=self.config.project_name,
+            auth_url=self.config.auth_url,
+            project_domain_name=self.config.project_domain_name,
+            user_domain_name=self.config.user_domain_name
         )
         self.servers = self._novaclient.servers
 
