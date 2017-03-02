@@ -33,9 +33,9 @@ class OpenstackHandler(YasHandler):
                     response = self.handlers[regex](*groups)
                 except BadRequest as e:
                     raise HandlerError(e)
-                reply(response)
+                return reply(response)
         else:
-            raise HandlerError("ExampleHandler does not understand")
+            raise HandlerError(f"{self.__class__} does not understand")
 
     def list_handler(self, search_opts, result_fields):
         if search_opts == 'all':
