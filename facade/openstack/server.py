@@ -29,7 +29,6 @@ class ServerManager(Client):
         return self.servers.create(name,
                                    image=image,
                                    flavor=flavor,
-                                   security_groups=security_groups,
                                    userdata=userdata,
                                    key_name=key_name,
                                    nics=nics)
