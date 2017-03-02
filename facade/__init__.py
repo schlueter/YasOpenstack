@@ -4,6 +4,7 @@ from pprint import pformat
 
 from novaclient.exceptions import BadRequest
 from yas import YasHandler, log
+from yas.errors import HandlerError
 
 from facade.openstack.server import ServerManager, ServersFoundException, NoServersFound
 
@@ -31,8 +32,7 @@ class OpenstackHandler(YasHandler):
                 try:
                     response = self.handlers[regex](*groups)
                 except BadRequest as e:
-                    reply(e)
-                    raise e
+                    raise HandlerError(e)
                 reply(response)
         else:
             raise HandlerError("ExampleHandler does not understand")
