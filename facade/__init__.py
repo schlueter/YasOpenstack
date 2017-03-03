@@ -21,12 +21,12 @@ class OpenstackHandler(YasHandler):
 
     def test(self, data):
         for regexp in self.handlers:
-            if regexp.match(data.get('text')):
+            if regexp.match(data.get('text', '')):
                 return True
 
     def handle(self, data, reply, api_call, handler_manager):
         for regex in self.handlers:
-            match = regex.match(data.get('text'))
+            match = regex.match(data.get('text', ''))
             if match:
                 groups = match.groups()
                 try:
