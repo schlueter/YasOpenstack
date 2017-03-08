@@ -23,21 +23,19 @@ class OpenstackHandler(YasHandler):
 
     def test(self, data):
         for regexp in self.handlers:
-            if regexp.match(data.get('text', '')):
+            match = regexp.search(data.get('text', '')):
+            if match:
+                self.matches[data['yas_hash']] = (self.handlers[regexp], match)
                 return True
 
     def handle(self, data, reply):
-        for regex in self.handlers:
-            match = regex.search(data.get('text', ''))
-            if match:
-                groups = match.groups()
-                try:
-                    response = self.handlers[regex](*groups)
-                except BadRequest as e:
-                    raise OpenstackHandlerError(e)
-                return reply(response)
-        else:
-            raise OpenstackHandlerError(f"{self.__class__} does not understand")
+        handler, match = self.matches[data['yas_hash']]
+        groups = match.groups()
+        try:
+            response = handler(*groups)
+        except BadRequest as e:
+            raise OpenstackHandlerError(e)
+        return reply(response)
 
     def list_handler(self, search_opts, result_fields):
         if search_opts == 'all':
