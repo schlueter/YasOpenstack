@@ -12,8 +12,8 @@ class OpenstackHandlerError(Exception):
 
 class OpenstackHandler(YasHandler):
 
-    def __init__(self, bot_name, api_call, log):
-        super().__init__(bot_name, api_call, log)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.handlers = {
             re.compile('(?:list)\ ?([a-z\.=,]+)?(?:\ fields\ )?([\-a-zA-Z0-9\,_]+)?'): self.list_handler,
             re.compile('(?:launch|start|create)\ ([-\w]+)(?:\ on\ )?([-\w]+:?[-\w]+)?'): self.create_handler,
@@ -58,7 +58,7 @@ class OpenstackHandler(YasHandler):
         except ServersFoundException as e:
             return str(e)
 
-        log('INFO', f'parsing {len(servers)} servers...')
+        self.log('INFO', f'parsing {len(servers)} servers...')
         servers = [server.to_dict() for server in servers]
         server_info = {}
         for server in servers:
@@ -81,7 +81,7 @@ class OpenstackHandler(YasHandler):
 
     def create_handler(self, name, branch):
         server = self.server_manager.create(name)
-        log('INFO', f'Created {server}')
+        self.log('INFO', f'Created {server}')
         response = f'Requested creation of {name}'
         if branch:
             response += 'on {branch}'
@@ -93,7 +93,7 @@ class OpenstackHandler(YasHandler):
             result = self.server_manager.delete(name=f'^{name}$')
         except ServersFoundException as e:
             return str(e)
-        log('INFO', f'Deleted {name}')
+        self.log('INFO', f'Deleted {name}')
         return f'Successfully deleted {name}.'
 
 
