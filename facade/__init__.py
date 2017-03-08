@@ -20,6 +20,7 @@ class OpenstackHandler(YasHandler):
             re.compile('(?:delete|drop|terminate|bust a cap in|pop a cap in) ([-\ \w]+)'): self.delete_handler
         }
         self.server_manager = ServerManager()
+        self.matches = {}
 
     def test(self, data):
         for regexp in self.handlers:
@@ -29,7 +30,7 @@ class OpenstackHandler(YasHandler):
                 return True
 
     def handle(self, data, reply):
-        handler, match = self.matches[data['yas_hash']]
+        handler, match = self.matches.pop(data['yas_hash'])
         groups = match.groups()
         try:
             response = handler(*groups)
