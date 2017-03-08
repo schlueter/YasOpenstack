@@ -3,15 +3,17 @@ import sys
 from pprint import pformat
 
 from novaclient.exceptions import BadRequest
-from yas import YasHandler, log
-from yas.errors import HandlerError
+from yas import YasHandler
 
 from facade.openstack.server import ServerManager, ServersFoundException, NoServersFound
 
+class OpenstackHandlerError(Exception):
+    pass
 
 class OpenstackHandler(YasHandler):
 
-    def __init__(self):
+    def __init__(self, bot_name, api_call, log):
+        super().__init__(bot_name, api_call, log)
         self.handlers = {
             re.compile('(?:list)\ ?([a-z\.=,]+)?(?:\ fields\ )?([\-a-zA-Z0-9\,_]+)?'): self.list_handler,
             re.compile('(?:launch|start|create)\ ([-\w]+)(?:\ on\ )?([-\w]+:?[-\w]+)?'): self.create_handler,
@@ -32,10 +34,10 @@ class OpenstackHandler(YasHandler):
                 try:
                     response = self.handlers[regex](*groups)
                 except BadRequest as e:
-                    raise HandlerError(e)
+                    raise OpenstackHandlerError(e)
                 return reply(response)
         else:
-            raise HandlerError(f"{self.__class__} does not understand")
+            raise OpenstackHandlerError(f"{self.__class__} does not understand")
 
     def list_handler(self, search_opts, result_fields):
         if search_opts == 'all':
@@ -56,7 +58,7 @@ class OpenstackHandler(YasHandler):
         except ServersFoundException as e:
             return str(e)
 
-        log(f'parsing {len(servers)} servers...')
+        log('INFO', f'parsing {len(servers)} servers...')
         servers = [server.to_dict() for server in servers]
         server_info = {}
         for server in servers:
@@ -79,7 +81,7 @@ class OpenstackHandler(YasHandler):
 
     def create_handler(self, name, branch):
         server = self.server_manager.create(name)
-        log(f'Created {server}')
+        log('INFO', f'Created {server}')
         response = f'Requested creation of {name}'
         if branch:
             response += 'on {branch}'
@@ -91,7 +93,7 @@ class OpenstackHandler(YasHandler):
             result = self.server_manager.delete(name=f'^{name}$')
         except ServersFoundException as e:
             return str(e)
-        log(f'Deleted {name}')
+        log('INFO', f'Deleted {name}')
         return f'Successfully deleted {name}.'
 
 
