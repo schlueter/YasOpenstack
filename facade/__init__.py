@@ -23,7 +23,7 @@ class OpenstackHandler(YasHandler):
 
     def test(self, data):
         for regexp in self.handlers:
-            match = regexp.search(data.get('text', '')):
+            match = regexp.search(data.get('text', ''))
             if match:
                 self.matches[data['yas_hash']] = (self.handlers[regexp], match)
                 return True
