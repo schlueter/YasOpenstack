@@ -26,12 +26,12 @@ class ServerManager(Client):
         return client._novaclient.flavors.find(name=flavor_name).id,
 
     def create(self, name, **kwargs):
-        image = kwargs.get('image') || self.default_image
-        flavor = kwargs.get('flavor') || self.default_flavor
-        security_groups = kwargs.get('security_groups') || self.default_security_groups
-        userdata = kwargs.get('userdata') || self.default_userdata
-        key_name = kwargs.get('key_name') || self.default_key_name
-        nics = kwargs.get('nics') || self.default_nics
+        image = kwargs.get('image') or self.default_image
+        flavor = kwargs.get('flavor') or self.default_flavor
+        security_groups = kwargs.get('security_groups') or self.default_security_groups
+        userdata = kwargs.get('userdata') or self.default_userdata
+        key_name = kwargs.get('key_name') or self.default_key_name
+        nics = kwargs.get('nics') or self.default_nics
 
         created_server =  self.servers.create(
             name,
