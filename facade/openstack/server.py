@@ -20,10 +20,10 @@ class ServerManager(Client):
         self.default_key_name=self.create_server_defaults.get('key_name')
 
     def find_image_by_name(self, image_name):
-        return client._novaclient.glance.find_image(image_name)
+        return self._novaclient.glance.find_image(image_name)
 
     def find_flavor_by_name(self, flavor_name):
-        return client._novaclient.flavors.find(name=flavor_name).id,
+        return self._novaclient.flavors.find(name=flavor_name).id,
 
     def create(self, name, **kwargs):
         image = kwargs.get('image') or self.default_image
