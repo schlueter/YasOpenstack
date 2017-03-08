@@ -5,26 +5,18 @@ from novaclient.client import Client as NovaClient
 
 from facade.openstack.yaml_file_config import YamlConfiguration
 
+config = YamlConfiguration()
 
 class Client:
     def __init__(self):
-        self.config = YamlConfiguration()
         self._novaclient = NovaClient(
-            version=self.config.compute_version,
-            username=self.config.username,
-            password=self.config.password,
-            project_name=self.config.project_name,
-            auth_url=self.config.auth_url,
-            project_domain_name=self.config.project_domain_name,
-            user_domain_name=self.config.user_domain_name
+            version=config.compute_version,
+            username=config.username,
+            password=config.password,
+            project_name=config.project_name,
+            auth_url=config.auth_url,
+            project_domain_name=config.project_domain_name,
+            user_domain_name=config.user_domain_name
         )
+        self.create_server_defaults = config.create_server_defaults
         self.servers = self._novaclient.servers
-
-ServerCreationDefaults = namedtuple('ServerCreationDefaults', [
-    'image',
-    'flavor',
-    'security_groups',
-    'userdata',
-    'key_name',
-    'nics'
-])

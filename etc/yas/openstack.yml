@@ -1,0 +1,16 @@
+---
+# compute_version: '2.38'
+# project_domain_name: default
+user_domain_name: default
+username: None
+password: None
+project_name: None
+auth_url: http://keystone:5000
+create_server_defaults:
+    image_name: ubuntu/trusty64
+    flavor_name: m1.big
+    # TODO requires neutron client
+    nics: auto
+    # security_groups:
+    # userdata:
+    # key_name:
