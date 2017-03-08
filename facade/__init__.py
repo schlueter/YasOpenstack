@@ -26,7 +26,7 @@ class OpenstackHandler(YasHandler):
             if regexp.match(data.get('text', '')):
                 return True
 
-    def handle(self, data, reply, api_call, handler_manager):
+    def handle(self, data, reply):
         for regex in self.handlers:
             match = regex.match(data.get('text', ''))
             if match:
