@@ -8,7 +8,6 @@ PARAMETERS = dict(
     project_name=None,
     username=None,
     password=None,
-    auth_url=None,
     create_server_defaults=dict(
         image_name='ubuntu/trusty64',
         flavor_name='m1.big',
