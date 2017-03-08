@@ -28,7 +28,7 @@ class OpenstackHandler(YasHandler):
 
     def handle(self, data, reply):
         for regex in self.handlers:
-            match = regex.match(data.get('text', ''))
+            match = regex.search(data.get('text', ''))
             if match:
                 groups = match.groups()
                 try:
