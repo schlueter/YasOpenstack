@@ -16,8 +16,8 @@ PARAMETERS = dict(
     project_name=None,
     auth_url=None,
     create_server_defaults=dict(
-        image_name=ubuntu/trusty64,
-        flavor_name=m1.big,
+        image_name='ubuntu/trusty64',
+        flavor_name='m1.big',
         # TODO requires neutron client
         nics='auto',
         security_groups=[],
@@ -25,5 +25,3 @@ PARAMETERS = dict(
         key_name=''
     )
 )
-
-
