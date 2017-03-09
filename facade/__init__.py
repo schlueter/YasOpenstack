@@ -18,7 +18,7 @@ class OpenstackHandlerError(Exception):
 class OpenstackHandler(YasHandler):
 
     def __init__(self, bot_name, api_call, *args, log=None, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(bot_name, api_call, *args, **kwargs)
         self.handlers = {
             re.compile('(?:list)\ ?([a-z\.=,]+)?(?:\ fields\ )?([\-a-zA-Z0-9\,_]+)?'): self.list_handler,
             re.compile('(?:launch|start|create)\ ([-\w]+)(?:\ on\ )?([-\w]+:?[-\w]+)?'): self.create_handler,
