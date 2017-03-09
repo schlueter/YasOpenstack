@@ -40,7 +40,7 @@ class OpenstackHandler(YasHandler):
         else:
             template = config_userdata
 
-        return Template(self.userdata_template)
+        return Template(template)
 
     def test(self, data):
         for regexp in self.handlers:
