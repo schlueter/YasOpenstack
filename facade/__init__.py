@@ -1,26 +1,44 @@
+import os
 import re
-import sys
 from pprint import pformat
 
+from jinja2 import Template
 from novaclient.exceptions import BadRequest
 from yas import YasHandler
 
-from facade.openstack.server import ServerManager, ServersFoundException, NoServersFound
+from facade.openstack.server import ServerManager, ServersFoundException
+from facade.openstack.yaml_file_config import YamlConfiguration
+
+
+config = YamlConfiguration()
 
 class OpenstackHandlerError(Exception):
     pass
 
 class OpenstackHandler(YasHandler):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, bot_name, api_call, *args, log=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.handlers = {
             re.compile('(?:list)\ ?([a-z\.=,]+)?(?:\ fields\ )?([\-a-zA-Z0-9\,_]+)?'): self.list_handler,
             re.compile('(?:launch|start|create)\ ([-\w]+)(?:\ on\ )?([-\w]+:?[-\w]+)?'): self.create_handler,
             re.compile('(?:delete|drop|terminate|bust a cap in|pop a cap in) ([-\ \w]+)'): self.delete_handler
         }
+        self.api_call
         self.server_manager = ServerManager()
         self.matches = {}
+        self.template = self.get_userdata_template()
+
+    def get_userdata_template(self):
+        config_userdata = config.create_server_defaults.userdata
+        if os.path.isfile(config_userdata):
+            template_file = open(config_userdata, 'r')
+            template = template_file.read()
+            template_file.close()
+        else:
+            template = config_userdata
+
+        return Template(self.userdata_template)
 
     def test(self, data):
         for regexp in self.handlers:
@@ -33,10 +51,29 @@ class OpenstackHandler(YasHandler):
         handler, match = self.matches.pop(data['yas_hash'])
         groups = match.groups()
         try:
-            response = handler(*groups)
+            response = handler(data, *groups)
         except BadRequest as e:
             raise OpenstackHandlerError(e)
         return reply(response)
+
+    def create_handler(self, data, name, branch):
+        response = f'Requesting creation of {name}'
+
+        userdata = self.template.render(name=name, branch=branch, **data)
+        server = self.server_manager.create(name, userdata=userdata)
+        self.log('INFO', f'Created {server}')
+        if branch:
+            response += 'on {branch}'
+        return response
+
+
+    def delete_handler(self, name):
+        try:
+            result = self.server_manager.delete(name=f'^{name}$')
+        except ServersFoundException as e:
+            return str(e)
+        self.log('INFO', f'Deleted {name}')
+        return f'Successfully deleted {name}.'
 
     def list_handler(self, search_opts, result_fields):
         if search_opts == 'all':
@@ -77,22 +114,3 @@ class OpenstackHandler(YasHandler):
             for field in result_fields:
                 server_info[name][field] = server[field]
         return pformat(server_info)
-
-    def create_handler(self, name, branch):
-        server = self.server_manager.create(name)
-        self.log('INFO', f'Created {server}')
-        response = f'Requested creation of {name}'
-        if branch:
-            response += 'on {branch}'
-        return response
-
-
-    def delete_handler(self, name):
-        try:
-            result = self.server_manager.delete(name=f'^{name}$')
-        except ServersFoundException as e:
-            return str(e)
-        self.log('INFO', f'Deleted {name}')
-        return f'Successfully deleted {name}.'
-
-

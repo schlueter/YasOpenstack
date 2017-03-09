@@ -13,7 +13,8 @@ PARAMETERS = dict(
         flavor_name='m1.big',
         nics='auto',
         security_groups=[],
-        userdata=None,
+        # Userdata contents or a path to a file
+        userdata='',
         key_name=''
     )
 )
