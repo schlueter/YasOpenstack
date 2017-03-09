@@ -19,12 +19,12 @@ class OpenstackHandler(YasHandler):
 
     def __init__(self, bot_name, api_call, *args, log=None, **kwargs):
         super().__init__(bot_name, api_call, *args, **kwargs)
+        self.log('DEBUG', f'Initializing Openstack handler with config:\n{config.__dict__}')
         self.handlers = {
             re.compile('(?:list)\ ?([a-z\.=,]+)?(?:\ fields\ )?([\-a-zA-Z0-9\,_]+)?'): self.list_handler,
             re.compile('(?:launch|start|create)\ ([-\w]+)(?:\ on\ )?([-\w]+:?[-\w]+)?'): self.create_handler,
             re.compile('(?:delete|drop|terminate|bust a cap in|pop a cap in) ([-\ \w]+)'): self.delete_handler
         }
-        self.api_call
         self.server_manager = ServerManager()
         self.matches = {}
         self.template = self.get_userdata_template()
