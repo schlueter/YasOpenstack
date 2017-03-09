@@ -9,6 +9,7 @@ config = YamlConfiguration()
 
 class Client:
     def __init__(self):
+        # try:
         self._novaclient = NovaClient(
             version=config.compute_version,
             username=config.username,
@@ -18,5 +19,6 @@ class Client:
             project_domain_name=config.project_domain_name,
             user_domain_name=config.user_domain_name
         )
+        # except keystoneauth1.exceptions.discovery.DiscoveryFailure
         self.create_server_defaults = config.create_server_defaults
         self.servers = self._novaclient.servers

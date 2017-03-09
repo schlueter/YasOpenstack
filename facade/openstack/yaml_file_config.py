@@ -14,7 +14,7 @@ class RequiredParameter(YamlConfigError):
     def __init__(self, parameter, config_file):
         self.message = self.__doc__.format(parameter=parameter, config_file=config_file)
 
-class YamlConfiguration(object):
+class YamlConfiguration:
 
     def __parse_config(self, config_file_path):
         with open(config_file_path, 'r') as config_file:
