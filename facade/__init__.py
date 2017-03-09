@@ -61,8 +61,10 @@ class OpenstackHandler(YasHandler):
         response = f'Requesting creation of {name}'
 
         userdata = self.template.render(name=name, branch=branch, **data)
+
         server = self.server_manager.create(name, userdata=userdata)
         self.log('INFO', f'Created {server}')
+        self.log('DEBUG', f'Used userdata:\n{userdata}')
         if branch:
             response += 'on {branch}'
         return response
