@@ -30,7 +30,7 @@ class OpenstackHandler(YasHandler):
         self.template = self.get_userdata_template()
 
     def get_userdata_template(self):
-        config_userdata = config.create_server_defaults.userdata
+        config_userdata = config.create_server_defaults.get('userdata', '')
         potential_userdata_file = os.path.join(sys.prefix, config_userdata)
         if os.path.isfile(potential_userdata_file):
             template_file = open(potential_userdata_file, 'r')
