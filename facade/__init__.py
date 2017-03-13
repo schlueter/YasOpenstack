@@ -61,7 +61,7 @@ class OpenstackHandler(YasHandler):
     def create_handler(self, data, name, branch):
         response = f'Requesting creation of {name}'
 
-        userdata = self.template.render(name=name, branch=branch, data=data)
+        userdata = self.template.render(name=name, branch=branch or '', data=data)
 
         server = self.server_manager.create(name, userdata=userdata)
         self.log('INFO', f'Created {server}')
