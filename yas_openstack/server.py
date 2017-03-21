@@ -1,6 +1,4 @@
-# Copyright 2017 Refinery29
-
-from facade.openstack import Client
+from yas_openstack import Client
 
 
 class ServerManager(Client):

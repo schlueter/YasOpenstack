@@ -9,8 +9,8 @@ PARAMETERS = dict(
     username=None,
     password=None,
     create_server_defaults=dict(
-        image_name='ubuntu/trusty64',
-        flavor_name='m1.big',
+        image_name='default',
+        flavor_name='default',
         nics='auto',
         security_groups=[],
         # Userdata contents or a path to a file

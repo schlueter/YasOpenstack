@@ -1,6 +1,6 @@
 /venv/
 *.pyc
-Facade.egg-info/
+YasOpenstack.egg-info/
 build/
 AUTHORS
 ChangeLog

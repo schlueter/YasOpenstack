@@ -7,11 +7,7 @@ from jinja2 import Template
 from novaclient.exceptions import BadRequest
 from yas import YasHandler
 
-from facade.openstack.server import ServerManager, ServersFoundException
-from facade.openstack.yaml_file_config import YamlConfiguration
-
-
-config = YamlConfiguration()
+from yas_openstack.server import ServerManager, ServersFoundException, NoServersFound
 
 class OpenstackHandlerError(Exception):
     pass
