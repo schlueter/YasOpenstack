@@ -5,7 +5,7 @@ from pprint import pformat
 from novaclient.exceptions import BadRequest
 from yas import YasHandler
 
-from facade.openstack.server import ServerManager, ServersFoundException, NoServersFound
+from yas_openstack.server import ServerManager, ServersFoundException, NoServersFound
 
 class OpenstackHandlerError(Exception):
     pass

@@ -3,7 +3,7 @@ from collections import namedtuple
 
 from novaclient.client import Client as NovaClient
 
-from facade.openstack.yaml_file_config import YamlConfiguration
+from yas_openstack.yaml_file_config import YamlConfiguration
 
 config = YamlConfiguration()
 
