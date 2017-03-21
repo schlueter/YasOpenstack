@@ -1,6 +1,6 @@
 /venv/
 *.pyc
-YasOpenstack.egg-info/
+YasOpenstackHandler.egg-info/
 build/
 AUTHORS
 ChangeLog
