@@ -8,6 +8,10 @@ from novaclient.exceptions import BadRequest
 from yas import YasHandler
 
 from yas_openstack.server import ServerManager, ServersFoundException, NoServersFound
+from yas_openstack.yaml_file_config import YamlConfiguration
+
+
+config = YamlConfiguration()
 
 class OpenstackHandlerError(Exception):
     pass
