@@ -2,3 +2,4 @@ pbr>=1.10.0
 pylint>=1.6.5
 python-novaclient>=7.1.0
 yas>=0.0.5
+Jinja2>=2.9.5
