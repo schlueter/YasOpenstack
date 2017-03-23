@@ -36,8 +36,9 @@ class ServerManager(Client):
 
         if meta:
             try:
-            meta_dict = dict(pair.split('=') for pair in meta.split(','))
-            except Exception as
+                meta_dict = dict(pair.split('=') for pair in meta.split(','))
+            except ValueError as e:
+                raise ValueError('Invalid meta, format must be "key=value,key=value..."')
         else:
             meta_dict = None
 
