@@ -23,7 +23,9 @@ class OpenstackHandler(YasHandler):
         self.log('DEBUG', f'Initializing Openstack handler with config:\n{config.__dict__}')
         self.handlers = {
             re.compile('(?:list)\ ?([a-z\.=,]+)?(?:\ fields\ )?([\-a-zA-Z0-9\,_]+)?'): self.list_handler,
-            re.compile('(?:launch|start|create)\ ([-\w]+)(?:\ on\ )?([-\w]+:?[-\w]+)?'): self.create_handler,
+            re.compile(
+                '(?:launch|start|create)\ ([-\w]+)(?:\ on\ )?([-\w]+:?[-\w]+)?(?:\ from\ )?([-:/\w]+)?(?:\ for\ )?(.+)?'
+            ): self.create_handler,
             re.compile('(?:delete|drop|terminate|bust a cap in|pop a cap in) ([-\ \w]+)'): self.delete_handler
         }
         self.server_manager = ServerManager()
@@ -53,33 +55,38 @@ class OpenstackHandler(YasHandler):
         handler, match = self.matches.pop(data['yas_hash'])
         groups = match.groups()
         try:
-            response = handler(data, *groups)
+            response = handler(data, reply, *groups)
         except BadRequest as e:
             raise OpenstackHandlerError(e)
-        return reply(response)
 
-    def create_handler(self, data, name, branch):
-        response = f'Requesting creation of {name}'
-
+    def create_handler(self, data, reply, name, branch, image, description):
+        reply(f"Requesting creation of {name}")
         userdata = self.template.render(name=name, branch=branch or '', data=data)
 
-        server = self.server_manager.create(name, userdata=userdata)
-        self.log('INFO', f'Created {server}')
-        self.log('DEBUG', f'Used userdata:\n{userdata}')
+        server = self.server_manager.create(name,
+                                            userdata=userdata,
+                                            image=image,
+                                            description=desccription)
+
         if branch:
-            response += 'on {branch}'
-        return response
+            onbranch = f' on {branch}'
+        else:
+            onbranch = ''
 
+        reply(f'Requested creation of {name}{onbranch} as {server}')
+        self.log('DEBUG', f'Created Used userdata:\n{userdata}')
 
-    def delete_handler(self, name):
+    def delete_handler(self, data, reply, name):
+        reply(f"Requesting deletion of {name}")
         try:
             result = self.server_manager.delete(name=f'^{name}$')
         except ServersFoundException as e:
             return str(e)
         self.log('INFO', f'Deleted {name}')
-        return f'Successfully deleted {name}.'
+        reply(f'Successfully deleted {name}.')
 
-    def list_handler(self, search_opts, result_fields):
+    def list_handler(self, data, reply, search_opts, result_fields):
+        reply(f"Preparing listing of {search_opts} with {result_fields}")
         if search_opts == 'all':
             if not result_fields:
                 result_fields = 'all'
@@ -117,4 +124,4 @@ class OpenstackHandler(YasHandler):
                 result_fields.append('addresses')
             for field in result_fields:
                 server_info[name][field] = server[field]
-        return pformat(server_info)
+        reply(pformat(server_info))
