@@ -66,7 +66,7 @@ class OpenstackHandler(YasHandler):
         server = self.server_manager.create(name,
                                             userdata=userdata,
                                             image=image,
-                                            description=desccription)
+                                            description=description)
 
         if branch:
             onbranch = f' on {branch}'
