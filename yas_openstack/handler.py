@@ -73,7 +73,7 @@ class OpenstackHandler(YasHandler):
         else:
             onbranch = ''
 
-        reply(f'Requested creation of {name}{onbranch} as {server}')
+        reply(f'Requested creation of {name}{onbranch} with id {server.id}')
         self.log('DEBUG', f'Created Used userdata:\n{userdata}')
 
     def delete_handler(self, data, reply, name):
