@@ -49,7 +49,7 @@ class ServerManager(Client):
             userdata=userdata,
             key_name=key_name,
             nics=nics,
-            meta=meta_dict
+            meta=meta_dict,
             description=description
         )
         return created_server
