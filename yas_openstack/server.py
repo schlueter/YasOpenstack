@@ -31,7 +31,15 @@ class ServerManager(Client):
         userdata = kwargs.get('userdata') or self.default_userdata
         key_name = kwargs.get('key_name') or self.default_key_name
         nics = kwargs.get('nics') or self.default_nics
+        meta = kwargs.get('meta')
         description = kwargs.get('description') or ''
+
+        if meta:
+            try:
+            meta_dict = dict(pair.split('=') for pair in meta.split(','))
+            except Exception as
+        else:
+            meta_dict = None
 
         created_server = self.servers.create(
             name,
@@ -40,6 +48,7 @@ class ServerManager(Client):
             userdata=userdata,
             key_name=key_name,
             nics=nics,
+            meta=meta_dict
             description=description
         )
         return created_server

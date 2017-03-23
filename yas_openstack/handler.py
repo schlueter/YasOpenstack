@@ -24,7 +24,7 @@ class OpenstackHandler(YasHandler):
         self.handlers = {
             re.compile('(?:list)\ ?([a-z\.=,]+)?(?:\ fields\ )?([\-a-zA-Z0-9\,_]+)?'): self.list_handler,
             re.compile(
-                '(?:launch|start|create)\ ([-\w]+)(?:\ on\ )?([-\w]+:?[-\w]+)?(?:\ from\ )?([-:/\w]+)?(?:\ for\ )?(.+)?'
+                '(?:launch|start|create)\ ([-\w]+)(?:\ on\ )?([-\w]+:?[-\w]+)?(?:\ meta\ )?([\w=,]+)?(?:\ from\ )?([-:/\w]+)?(?:\ for\ )?(.+)?'
             ): self.create_handler,
             re.compile('(?:delete|drop|terminate|bust a cap in|pop a cap in) ([-\ \w]+)'): self.delete_handler
         }
@@ -59,13 +59,14 @@ class OpenstackHandler(YasHandler):
         except BadRequest as e:
             raise OpenstackHandlerError(e)
 
-    def create_handler(self, data, reply, name, branch, image, description):
+    def create_handler(self, data, reply, name, branch, meta, image, description):
         reply(f"Requesting creation of {name}")
         userdata = self.template.render(name=name, branch=branch or '', data=data)
 
         server = self.server_manager.create(name,
                                             userdata=userdata,
                                             image=image,
+                                            meta=meta,
                                             description=description)
 
         if branch:
