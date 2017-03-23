@@ -25,7 +25,7 @@ class ServerManager(Client):
 
     def create(self, name, **kwargs):
 
-        image = kwargs.get('image') or self.default_image
+        image = find_image_by_name(kwargs.get('image')) or self.default_image
         flavor = kwargs.get('flavor') or self.default_flavor
         security_groups = kwargs.get('security_groups') or self.default_security_groups
         userdata = kwargs.get('userdata') or self.default_userdata
