@@ -60,7 +60,7 @@ class OpenstackHandler(YasHandler):
             raise OpenstackHandlerError(e)
 
     def create_handler(self, data, reply, name, branch, meta, image, description):
-        reply(f"Requesting creation of {name}")
+        reply(f"Requesting creation of {name}", thread=data['ts'])
         userdata = self.template.render(name=name, branch=branch or '', data=data)
 
         server = self.server_manager.create(name,
@@ -74,11 +74,11 @@ class OpenstackHandler(YasHandler):
         else:
             onbranch = ''
 
-        reply(f'Requested creation of {name}{onbranch} with id {server.id}')
+        reply(f'Requested creation of {name}{onbranch} with id {server.id}', thread=data['ts'])
         self.log('DEBUG', f'Created Used userdata:\n{userdata}')
 
     def delete_handler(self, data, reply, name):
-        reply(f"Requesting deletion of {name}")
+        reply(f"Requesting deletion of {name}", thread=data['ts'])
         try:
             result = self.server_manager.delete(name=f'^{name}$')
         except ServersFoundException as e:
@@ -87,7 +87,7 @@ class OpenstackHandler(YasHandler):
         reply(f'Successfully deleted {name}.')
 
     def list_handler(self, data, reply, search_opts, result_fields):
-        reply(f"Preparing listing of {search_opts} with {result_fields}")
+        reply(f"Preparing listing of {search_opts} with {result_fields}", thread=data['ts'])
         if search_opts == 'all':
             if not result_fields:
                 result_fields = 'all'
