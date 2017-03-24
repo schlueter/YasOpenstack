@@ -96,7 +96,7 @@ class OpenstackHandler(YasHandler):
         except ServersFoundException as e:
             return str(e)
         self.log('INFO', f'Deleted {name}')
-        reply(f'Successfully deleted {name}.')
+        reply(f'Successfully deleted {name}.', thread=data['ts'])
 
     def list_handler(self, data, reply, search_opts, result_fields):
         if search_opts == 'all':
