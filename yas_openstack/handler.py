@@ -87,20 +87,22 @@ class OpenstackHandler(YasHandler):
         reply(f'Successfully deleted {name}.')
 
     def list_handler(self, data, reply, search_opts, result_fields):
-        reply(f"Preparing listing of {search_opts} with {result_fields}", thread=data['ts'])
         if search_opts == 'all':
             if not result_fields:
                 result_fields = 'all'
             search_opts = None
 
         if search_opts:
-            search_opts = dict([opt.split('=') for opt in search_opts.split(' ')])
+            search_opts = dict(opt.split('=') for opt in search_opts.split(' '))
         else:
             search_opts = {}
         if result_fields:
             result_fields.split(',')
         else:
-            result_fields = ['name', 'tags', 'description', 'status', 'addresses']
+            result_fields = ['name', 'metadata', 'status', 'addresses']
+
+        reply(f"Preparing listing of {search_opts or 'all'} with {result_fields}", thread=data['ts'])
+
         try:
             servers = self.server_manager.findall(**search_opts)
         except ServersFoundException as e:
@@ -110,7 +112,8 @@ class OpenstackHandler(YasHandler):
         servers = [server.to_dict() for server in servers]
         server_info = {}
         for server in servers:
-            name = server.get('name', 'unknown')
+            id = server.get('id')
+            name = server.get('name')
             if 'all' in result_fields:
                 server_info[name] = server
                 continue
@@ -125,4 +128,4 @@ class OpenstackHandler(YasHandler):
                 result_fields.append('addresses')
             for field in result_fields:
                 server_info[name][field] = server[field]
-        reply(pformat(server_info))
+        reply(pformat(server_info), thread=data['ts'])
