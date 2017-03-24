@@ -70,7 +70,7 @@ class OpenstackHandler(YasHandler):
             existing_server = True
 
         if existing_server:
-            reply(f"{name} already exists.")
+            reply(f"{name} already exists.", thread=data['ts'])
             return
 
         userdata = self.template.render(name=name, branch=branch or '', data=data)
