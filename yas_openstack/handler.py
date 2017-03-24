@@ -60,7 +60,19 @@ class OpenstackHandler(YasHandler):
             raise OpenstackHandlerError(e)
 
     def create_handler(self, data, reply, name, branch, meta, image, description):
-        reply(f"Requesting creation of {name}", thread=data['ts'])
+        reply(f"Received request for creation of {name}", thread=data['ts'])
+
+        try:
+            existing_server = self.server_manager.find(name=name)
+        except NoServersFound:
+            existing_server = None
+        except MultipleServersFound:
+            existing_server = True
+
+        if existing_server:
+            reply(f"{name} already exists.")
+            return
+
         userdata = self.template.render(name=name, branch=branch or '', data=data)
 
         server = self.server_manager.create(name,
