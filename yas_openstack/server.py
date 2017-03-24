@@ -18,7 +18,8 @@ class ServerManager(Client):
         self.default_key_name=self.create_server_defaults.get('key_name')
 
     def find_image_by_name(self, image_name):
-        return self._novaclient.glance.find_image(image_name)
+        if image_name:
+            return self._novaclient.glance.find_image(image_name)
 
     def find_flavor_by_name(self, flavor_name):
         return self._novaclient.flavors.find(name=flavor_name).id
