@@ -49,7 +49,7 @@ class OpenstackHandler(YasHandler):
             match = regexp.search(data.get('text', ''))
             if match:
                 self.matches[data['yas_hash']] = (self.handlers[regexp], match)
-                return True
+            return match
 
     def handle(self, data, reply):
         handler, match = self.matches.pop(data['yas_hash'])
@@ -94,7 +94,7 @@ class OpenstackHandler(YasHandler):
         try:
             result = self.server_manager.delete(name=f'^{name}$')
         except ServersFoundException as e:
-            return str(e)
+            reply(f'There was an issue finding {name}: {e}', thread=data['ts'])
         self.log('INFO', f'Deleted {name}')
         reply(f'Successfully deleted {name}.', thread=data['ts'])
 
@@ -118,7 +118,7 @@ class OpenstackHandler(YasHandler):
         try:
             servers = self.server_manager.findall(**search_opts)
         except ServersFoundException as e:
-            return str(e)
+            reply(f'There was an issue finding {name}: {e}', thread=data['ts'])
 
         self.log('INFO', f'parsing {len(servers)} servers...')
         servers = [server.to_dict() for server in servers]
