@@ -1,4 +1,4 @@
-from yas_openstack import OpenstackHandler
+from yas_openstack.openstack_handler import OpenstackHandler
 from yas_openstack.server import ServersFoundException
 
 
