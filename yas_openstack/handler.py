@@ -49,7 +49,7 @@ class OpenstackHandler(YasHandler):
             match = regexp.search(data.get('text', ''))
             if match:
                 self.matches[data['yas_hash']] = (self.handlers[regexp], match)
-            return match
+                return
 
     def handle(self, data, reply):
         handler, match = self.matches.pop(data['yas_hash'])
