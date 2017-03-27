@@ -13,8 +13,8 @@ config = YamlConfiguration()
 
 class OpenStackHandler(RegexHandler):
 
-    def __init__(self, regex, bot_name, api_call, *args, log=None, **kwargs):
-        super().__init__(regex, bot_name, api_call, *args, log=log, **kwargs)
+    def __init__(self, regex, bot_name, api_call, *args, **kwargs):
+        super().__init__(regex, bot_name, api_call, *args, **kwargs)
         self.server_manager = ServerManager()
         self.matches = {}
         self.template = self.get_userdata_template()
