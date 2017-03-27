@@ -8,7 +8,7 @@ class OpenStackServerDeleteHandler(OpenStackHandler):
         super().__init__('(?:delete|drop|terminate|bust a cap in|pop a cap in) ([-\ \w]+)',
                          bot_name, api_call, *args, log=log, **kwargs)
 
-    def handler(self, data, reply):
+    def handle(self, data, reply):
         name = self.current_match.groups()[0]
         reply(f"Requesting deletion of {name}", thread=data['ts'])
 

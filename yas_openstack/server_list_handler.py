@@ -10,19 +10,7 @@ class OpenStackServerListHandler(OpenStackHandler):
         super().__init__('(?:list)\ ?([a-z\.=,]+)?(?:\ fields\ )?([\-a-zA-Z0-9\,_]+)?',
                          bot_name, api_call, *args, log=log, **kwargs)
 
-    def delete_handler(self, data, reply):
-        name = self.current_match.groups()[0]
-        reply(f"Requesting deletion of {name}", thread=data['ts'])
-
-        try:
-            result = self.server_manager.delete(name=f'^{name}$')
-        except ServersFoundException as e:
-            return reply(f'There was an issue finding {name}: {e}', thread=data['ts'])
-
-        self.log('INFO', f'Deleted {name}')
-        reply(f'Successfully deleted {name}.', thread=data['ts'])
-
-    def handler(self, data, reply):
+    def handle(self, data, reply):
         search_opts, result_fields = self.current_match.groups()
         if search_opts == 'all':
             if not result_fields:

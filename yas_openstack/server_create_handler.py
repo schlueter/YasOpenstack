@@ -22,7 +22,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
 
         return existing_server
 
-    def handler(self, data, reply):
+    def handle(self, data, reply):
         name, branch, meta, image = self.current_match.groups()
         reply(f"Received request for creation of {name}", thread=data['ts'])
 
