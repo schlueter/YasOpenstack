@@ -85,5 +85,8 @@ class NoServersFound(ServersFoundException):
 
 class MultipleServersFound(ServersFoundException):
     def __init__(self, servers):
-        super().__init__(f'Found multiple servers: {", ".join([dict(name=server.name, id=server.id) for server in servers]}\n\nRefer to <https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detail#id4|the docs> for available search parameters to make your query more specific.')
+        super().__init__('\n'.join(
+            [f'Found multiple servers: {", ".join([dict(name=server.name, id=server.id) for server in servers]}',
+             '',
+             'Refer to <https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detail#id4|the docs> for available search parameters to make your query more specific.'])
 
