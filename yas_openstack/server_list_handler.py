@@ -1,6 +1,6 @@
 from pprint import pformat
 
-from yas_openstack.openstack_handler import OpenstackHandler
+from yas_openstack.openstack_handler import OpenStackHandler
 from yas_openstack.server import ServersFoundException
 
 
