@@ -95,6 +95,7 @@ class OpenstackHandler(YasHandler):
             result = self.server_manager.delete(name=f'^{name}$')
         except ServersFoundException as e:
             reply(f'There was an issue finding {name}: {e}', thread=data['ts'])
+            return
         self.log('INFO', f'Deleted {name}')
         reply(f'Successfully deleted {name}.', thread=data['ts'])
 
