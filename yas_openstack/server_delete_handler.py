@@ -4,9 +4,8 @@ from yas_openstack.server import ServersFoundException
 
 class OpenStackServerDeleteHandler(OpenStackHandler):
 
-    def __init__(self, regex, bot_name, api_call, *args, **kwargs):
-        super().__init__('(?:delete|drop|terminate|bust a cap in|pop a cap in) ([-\ \w]+)',
-                         bot_name, api_call, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__('(?:delete|drop|terminate|bust a cap in|pop a cap in) ([-\ \w]+)', *args, **kwargs)
 
     def handle(self, data, reply):
         name = self.current_match.groups()[0]
