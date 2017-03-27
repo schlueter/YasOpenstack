@@ -7,7 +7,7 @@ from jinja2 import Template
 from novaclient.exceptions import BadRequest
 from yas import YasHandler
 
-from yas_openstack.server import ServerManager, ServersFoundException, NoServersFound
+from yas_openstack.server import ServerManager, ServersFoundException, NoServersFound, MultipleServersFound
 from yas_openstack.yaml_file_config import YamlConfiguration
 
 
@@ -49,7 +49,7 @@ class OpenstackHandler(YasHandler):
             match = regexp.search(data.get('text', ''))
             if match:
                 self.matches[data['yas_hash']] = (self.handlers[regexp], match)
-                return
+                return True
 
     def handle(self, data, reply):
         handler, match = self.matches.pop(data['yas_hash'])
