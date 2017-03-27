@@ -5,12 +5,12 @@ from yas_openstack.server import NoServersFound, MultipleServersFound
 class OpenStackServerCreateHandler(OpenStackHandler):
 
     def __init__(self, regex, bot_name, api_call, *args, log=None, **kwargs):
-        self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
         super().__init__('(?:launch|start|create)\ ([-\w]+)'
                          '(?:\ on\ )?([-\w]+:?[-\w]+)?'
                          '(?:\ meta\ )?([\w=,]+)?'
                          '(?:\ from\ )?([-:/\w]+)',
                          bot_name, api_call, *args, log=log, **kwargs)
+        self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
 
     def __name_already_used(self, name):
         try:
