@@ -8,7 +8,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         super().__init__('(?:launch|start|create)\ ([-\w]+)'
                          '(?:\ on\ )?([-\w]+:?[-\w]+)?'
                          '(?:\ meta\ )?([\w=,]+)?'
-                         '(?:\ from\ )?([-:/\w]+)',
+                         '(?:\ from\ )?([-:/\w]+)?',
                          *args, **kwargs)
         self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
 
@@ -24,6 +24,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
 
     def handle(self, data, reply):
         name, branch, meta, image = self.current_match.groups()
+        self.log(f"Received request for {name} on {branch} from {image}")
         reply(f"Received request for creation of {name}", thread=data['ts'])
 
         if self.__name_already_used(name):
