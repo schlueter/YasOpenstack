@@ -1,3 +1,5 @@
+from novaclient.exceptions import Forbidden
+
 from yas_openstack.openstack_handler import OpenStackHandler
 from yas_openstack.server import NoServersFound, MultipleServersFound
 
@@ -31,7 +33,13 @@ class OpenStackServerCreateHandler(OpenStackHandler):
             return reply(f"{name} already exists.", thread=data['ts'])
 
         userdata = self.template.render(name=name, branch=branch or '', data=data)
-        server = self.server_manager.create(name, userdata=userdata, image=image, meta=meta)
+
+        try:
+            server = self.server_manager.create(name, userdata=userdata, image=image, meta=meta)
+        except Forbidden as forbidden:
+            if "Quota exceeded" in forbidden.message:
+                return reply(forbidden.message)
+            raise forbidden
 
         reply(f'Requested creation of {name} with id {server.id}', thread=data['ts'])
         self.log('DEBUG', f'Created used userdata:\n{userdata}')
