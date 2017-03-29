@@ -41,7 +41,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         if self.server_manager.findall(name=name):
             return reply(f"{name} already exists.")
 
-        userdata = self.template.render(meta=meta, name=name, branch=branch or '', data=data)
+        userdata = self.template.render(meta=meta_string, name=name, branch=branch or '', data=data)
 
         meta = _parse_meta(meta_string)
 
