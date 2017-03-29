@@ -1,3 +1,5 @@
+import json
+
 from novaclient.exceptions import Forbidden
 
 from yas_openstack.openstack_handler import OpenStackHandler
@@ -42,19 +44,19 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         if self.server_manager.findall(name=name):
             return reply(f"{name} already exists.")
 
-        userdata = self.template.render(meta=meta_string, name=name, branch=branch or '', data=data)
-
         meta = _parse_meta(meta_string)
 
         creator_info = self.__get_user_info(data['user'])
         if creator_info:
             meta['owner'] = creator_info['user']['profile']['real_name']
         else:
-            meta['owner'] = data['user']
+            meta['owner'] = 'unknown'
+        meta['owner_id'] = data['user']
 
         meta['init'] = 'pending'
         meta['branch'] = branch or ''
 
+        userdata = self.template.render(meta=json.dumps(meta), name=name, branch=branch or '', data=data)
         try:
             server = self.server_manager.create(name, userdata=userdata, image=image, meta=meta)
         except Forbidden as forbidden:
