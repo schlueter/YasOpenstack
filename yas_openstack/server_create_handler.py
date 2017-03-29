@@ -14,15 +14,6 @@ def _parse_meta(meta_string):
         meta_dict = None
     return meta_dict
 
-def _get_user_info(user_id):
-    try:
-        creator_info = self.api_call('users.info', user=user_id)
-    except Exception as e:
-        reply(f"Caught {e} while retrieving creator_info.")
-        creator_info = None
-    return creator_info
-
-
 class OpenStackServerCreateHandler(OpenStackHandler):
 
     def __init__(self, *args, **kwargs):
@@ -32,6 +23,14 @@ class OpenStackServerCreateHandler(OpenStackHandler):
                          '(?:\ from\ )?([-:/\w]+)?',
                          *args, **kwargs)
         self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
+
+    def __get_user_info(self, user_id):
+        try:
+            creator_info = self.api_call('users.info', user=user_id)
+        except Exception as e:
+            self.log('WARN', f"Caught {e} while retrieving creator_info.")
+            creator_info = None
+        return creator_info
 
     def handle(self, data, reply):
         name, branch, meta_string, image = self.current_match.groups()
@@ -45,7 +44,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
 
         meta = _parse_meta(meta_string)
 
-        creator_info = _get_user_info(data['user'])
+        creator_info = self.__get_user_info(data['user'])
         if creator_info:
             meta['owner'] = creator_info['user']['profile']['real_name']
 
