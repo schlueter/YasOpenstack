@@ -49,7 +49,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
             meta['owner'] = creator_info['user']['profile']['real_name']
 
         meta['init'] = 'pending'
-        meta['branch'] = branch
+        meta['branch'] = branch or ''
 
         try:
             server = self.server_manager.create(name, userdata=userdata, image=image, meta=meta)
