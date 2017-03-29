@@ -4,6 +4,25 @@ from yas_openstack.openstack_handler import OpenStackHandler
 from yas_openstack.server import NoServersFound, MultipleServersFound
 
 
+def _parse_meta(meta_string):
+    if meta_string:
+        try:
+            meta_dict = dict(pair.split('=') for pair in meta_string.split(','))
+        except ValueError as e:
+            raise ValueError('Invalid meta, format must be "key=value,key=value..."')
+    else:
+        meta_dict = None
+    return meta_dict
+
+def _get_user_info(user_id):
+    try:
+        creator_info = self.api_call('users.info', user=user_id)
+    except Exception as e:
+        reply(f"Caught {e} while retrieving creator_info.")
+        creator_info = None
+    return creator_info
+
+
 class OpenStackServerCreateHandler(OpenStackHandler):
 
     def __init__(self, *args, **kwargs):
@@ -14,37 +33,23 @@ class OpenStackServerCreateHandler(OpenStackHandler):
                          *args, **kwargs)
         self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
 
-    def __name_already_used(self, name):
-        try:
-            existing_server = self.server_manager.find(name=name)
-        except NoServersFound:
-            existing_server = None
-        except MultipleServersFound:
-            existing_server = True
-
-        return existing_server
-
     def handle(self, data, reply):
-        name, branch, meta, image = self.current_match.groups()
+        name, branch, meta_string, image = self.current_match.groups()
         self.log('INFO', f"Received request for {name} on {branch} from {image}")
         reply(f"Received request for creation of {name}", thread=data['ts'])
 
-        if self.__name_already_used(name):
-            return reply(f"{name} already exists.", thread=data['ts'])
+        if self.server_manager.findall(name=name):
+            return reply(f"{name} already exists.")
 
         userdata = self.template.render(meta=meta, name=name, branch=branch or '', data=data)
 
-        try:
-            creator_info = self.api_call('users.info', user=data['user'])
-        except Exception as e:
-            reply(f"Caught {e} while retrieving creator_info.")
-            creator_info = None
+        meta = _parse_meta(meta_string)
 
+        creator_info = _get_user_info(data['user']
         if creator_info:
             meta['owner'] = creator_info['user']['profile']['real_name']
 
         meta['init'] = 'pending'
-
         meta['branch'] = branch
 
         try:

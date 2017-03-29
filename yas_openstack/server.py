@@ -35,14 +35,6 @@ class ServerManager(Client):
         meta = kwargs.get('meta')
         description = kwargs.get('description') or ''
 
-        if meta:
-            try:
-                meta_dict = dict(pair.split('=') for pair in meta.split(','))
-            except ValueError as e:
-                raise ValueError('Invalid meta, format must be "key=value,key=value..."')
-        else:
-            meta_dict = None
-
         created_server = self.servers.create(
             name,
             image=image,
@@ -50,7 +42,7 @@ class ServerManager(Client):
             userdata=userdata,
             key_name=key_name,
             nics=nics,
-            meta=meta_dict,
+            meta=meta,
             description=description
         )
         return created_server
