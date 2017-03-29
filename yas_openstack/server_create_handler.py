@@ -10,6 +10,8 @@ def _parse_meta(meta_string):
             meta_dict = dict(pair.split('=') for pair in meta_string.split(','))
         except ValueError as e:
             raise ValueError('Invalid meta, format must be "key=value,key=value..."')
+        for key in meta_dict:
+            meta_dict[key] = meta_dict[key] or ''
     else:
         meta_dict = None
     return meta_dict
@@ -47,6 +49,8 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         creator_info = self.__get_user_info(data['user'])
         if creator_info:
             meta['owner'] = creator_info['user']['profile']['real_name']
+        else:
+            meta['owner'] = data['user']
 
         meta['init'] = 'pending'
         meta['branch'] = branch or ''
