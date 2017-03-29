@@ -32,7 +32,20 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         if self.__name_already_used(name):
             return reply(f"{name} already exists.", thread=data['ts'])
 
-        userdata = self.template.render(name=name, branch=branch or '', data=data)
+        userdata = self.template.render(meta=meta, name=name, branch=branch or '', data=data)
+
+        try:
+            creator_info = self.api_call('users.info', user=data['user'])
+        except Exception as e:
+            reply(f"Caught {e} while retrieving creator_info.")
+            creator_info = None
+
+        if creator_info:
+            meta['owner'] = creator_info['user']['profile']['real_name']
+
+        meta['init'] = 'pending'
+
+        meta['branch'] = branch
 
         try:
             server = self.server_manager.create(name, userdata=userdata, image=image, meta=meta)
