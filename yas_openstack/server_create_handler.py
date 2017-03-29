@@ -13,7 +13,7 @@ def _parse_meta(meta_string):
         for key in meta_dict:
             meta_dict[key] = meta_dict[key] or ''
     else:
-        meta_dict = None
+        meta_dict = {}
     return meta_dict
 
 class OpenStackServerCreateHandler(OpenStackHandler):
@@ -46,7 +46,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
 
         meta = _parse_meta(meta_string)
 
-        creator_info = self.__get_user_info(data('user', ''))
+        creator_info = self.__get_user_info(data['user'])
         if creator_info:
             meta['owner'] = creator_info['user']['profile']['real_name']
         else:
