@@ -28,7 +28,7 @@ class OpenStackServerListHandler(OpenStackHandler):
         if result_fields:
             result_fields.split(',')
         else:
-            result_fields = ['name', 'metadata']
+            self.config.default_list_result_fields
 
         reply(f"Preparing listing of {search_opts or 'all'} with {result_fields}", thread=data['ts'])
 

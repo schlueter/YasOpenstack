@@ -16,5 +16,6 @@ PARAMETERS = dict(
         # Userdata contents or a path to a file
         userdata='',
         key_name=''
-    )
+    ),
+    default_list_result_fields=['metadata']
 )
