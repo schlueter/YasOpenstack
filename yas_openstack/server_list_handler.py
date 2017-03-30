@@ -18,7 +18,7 @@ class OpenStackServerListHandler(OpenStackHandler):
 
         if search_opts:
             try:
-                search_opts = dict(opt.split(':') for opt in search_opts.split(' '))
+                search_opts = dict(opt.split(': ') for opt in search_opts.split(' '))
             except ValueError as e:
                 raise ValueError('Invalid search opts, list query must look like: "list[ <sort query>: <argument>[ <query>: <argument>[ ...]][ fields <field1>[,<fieldN>]]"\n'
                                  'For example:\n&gt; list name=foobar fields metadata,created\n'
