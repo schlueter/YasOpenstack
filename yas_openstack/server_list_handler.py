@@ -28,12 +28,13 @@ class OpenStackServerListHandler(OpenStackHandler):
 
         else:
             search_opts = dict()
-        if result_fields:
-            result_fields.split(',')
-        else:
-            self.config.default_list_result_fields
 
-        reply(f"Preparing listing of {search_opts or 'all'} with {result_fields}", thread=data['ts'])
+        if result_fields:
+            result_fields_list = result_fields.split(',')
+        else:
+            result_fields_list = self.config.default_list_result_fields
+
+        reply(f"Preparing listing of {search_opts or 'all'} with {result_fields_list}", thread=data['ts'])
 
         try:
             servers = self.server_manager.findall(**search_opts)
@@ -46,19 +47,19 @@ class OpenStackServerListHandler(OpenStackHandler):
         for server in servers:
             id = server.get('id')
             name = server.get('name')
-            if 'all' in result_fields:
+            if 'all' in result_fields_list:
                 server_info[name] = server
                 continue
             server_info[name] = {}
-            if 'addresses' in result_fields:
+            if 'addresses' in result_fields_list:
                 server_info[name]['addresses'] = [interface['addr']
                                                   for provider in server['addresses']
                                                   for interface in server['addresses'][provider]]
-                result_fields.remove('addresses')
-            if '_addresses' in result_fields:
-                result_fields.remove('_addresses')
-                result_fields.append('addresses')
-            for field in result_fields:
+                result_fields_list.remove('addresses')
+            if '_addresses' in result_fields_list:
+                result_fields_list.remove('_addresses')
+                result_fields_list.append('addresses')
+            for field in result_fields_list:
                 server_info[name][field] = server[field]
         reply(pformat(server_info), thread=data['ts'])
 
