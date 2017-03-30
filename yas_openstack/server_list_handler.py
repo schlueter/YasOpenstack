@@ -11,6 +11,7 @@ class OpenStackServerListHandler(OpenStackHandler):
 
     def handle(self, data, reply):
         search_opts, result_fields = self.current_match.groups()
+        self.log('DEBUG', f"Parsed search_opts:\n{search_opts}\nand result_fields:\n{result_fields}")
         if search_opts == 'all':
             if not result_fields:
                 result_fields = 'all'
@@ -20,9 +21,10 @@ class OpenStackServerListHandler(OpenStackHandler):
             try:
                 search_opts = dict(opt.split(': ') for opt in search_opts.split(' '))
             except ValueError as e:
-                raise ValueError('Invalid search opts, list query must look like: "list[ <sort query>: <argument>[ <query>: <argument>[ ...]][ fields <field1>[,<fieldN>]]"\n'
-                                 'For example:\n&gt; list name=foobar fields metadata,created\n'
-                                 'Available sort queries and fields may be found in the <https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detailed-detail#list-servers-detailed|docs>.')
+                reply('Invalid search opts, list query must look like: "list[ <sort query>: <argument>[ <query>: <argument>[ ...]][ fields <field1>[,<fieldN>]]"\n'
+                      'For example:\n&gt; list name=foobar fields metadata,created\n'
+                      'Available sort queries and fields may be found in the <https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detailed-detail#list-servers-detailed|docs>.')
+
         else:
             search_opts = dict()
         if result_fields:
