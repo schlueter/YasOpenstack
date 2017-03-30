@@ -17,13 +17,18 @@ class OpenStackServerListHandler(OpenStackHandler):
             search_opts = None
 
         if search_opts:
-            search_opts = dict(opt.split('=') for opt in search_opts.split(' '))
+            try:
+                search_opts = dict(opt.split(':') for opt in search_opts.split(' '))
+            except ValueError as e:
+                raise ValueError('Invalid search opts, list query must look like: "list[ <sort query>: <argument>[ <query>: <argument>[ ...]][ fields <field1>[,<fieldN>]]"\n'
+                                 'For example:\n&gt; list name=foobar fields metadata,created\n'
+                                 'Available sort queries and fields may be found in the <https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detailed-detail#list-servers-detailed|docs>.')
         else:
-            search_opts = {}
+            search_opts = dict()
         if result_fields:
             result_fields.split(',')
         else:
-            result_fields = ['name', 'metadata', 'status', 'addresses']
+            result_fields = ['name', 'metadata']
 
         reply(f"Preparing listing of {search_opts or 'all'} with {result_fields}", thread=data['ts'])
 
