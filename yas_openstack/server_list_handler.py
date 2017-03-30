@@ -11,11 +11,7 @@ class OpenStackServerListHandler(OpenStackHandler):
 
     def handle(self, data, reply):
         search_opts, result_fields = self.current_match.groups()
-        self.log('DEBUG', f"Parsed search_opts:\n{search_opts}\nand result_fields:\n{result_fields}")
-        if search_opts == 'all':
-            if not result_fields:
-                result_fields = 'all'
-            search_opts = None
+        self.log('DEBUG', f"Parsed from {data['yas_hash']} search_opts:\n{search_opts}\nand result_fields:\n{result_fields}")
 
         if search_opts:
             try:
@@ -27,7 +23,7 @@ class OpenStackServerListHandler(OpenStackHandler):
                 return
 
         else:
-            search_opts = dict()
+            search_opts = {}
 
         if result_fields:
             result_fields_list = result_fields.split(',')
@@ -42,15 +38,15 @@ class OpenStackServerListHandler(OpenStackHandler):
             reply(f'There was an issue finding {name}: {e}', thread=data['ts'])
 
         self.log('INFO', f'parsing {len(servers)} servers...')
+
         servers = [server.to_dict() for server in servers]
+
         server_info = {}
+
         for server in servers:
             id = server.get('id')
             name = server.get('name')
-            if 'all' in result_fields_list:
-                server_info[name] = server
-                continue
-            server_info[name] = {}
+            server_info[id] = {}
             if 'addresses' in result_fields_list:
                 server_info[name]['addresses'] = [interface['addr']
                                                   for provider in server['addresses']
@@ -61,5 +57,6 @@ class OpenStackServerListHandler(OpenStackHandler):
                 result_fields_list.append('addresses')
             for field in result_fields_list:
                 server_info[name][field] = server[field]
-        reply(pformat(server_info), thread=data['ts'])
+
+        reply(pformat(list(server_info.values())), thread=data['ts'])
 
