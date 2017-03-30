@@ -48,7 +48,7 @@ class OpenStackServerListHandler(OpenStackHandler):
             name = server.get('name')
             server_info[id] = {}
             if 'addresses' in result_fields_list:
-                server_info[name]['addresses'] = [interface['addr']
+                server_info[id]['addresses'] = [interface['addr']
                                                   for provider in server['addresses']
                                                   for interface in server['addresses'][provider]]
                 result_fields_list.remove('addresses')
@@ -56,7 +56,7 @@ class OpenStackServerListHandler(OpenStackHandler):
                 result_fields_list.remove('_addresses')
                 result_fields_list.append('addresses')
             for field in result_fields_list:
-                server_info[name][field] = server[field]
+                server_info[id][field] = server[field]
 
         reply(pformat(list(server_info.values())), thread=data['ts'])
 
