@@ -7,7 +7,7 @@ from yas_openstack.server import ServersFoundException
 class OpenStackServerListHandler(OpenStackHandler):
 
     def __init__(self, *args, **kwargs):
-        super().__init__('(?:list)\ ?([a-z\.=,]+)?(?:\ fields\ )?([\-a-zA-Z0-9\,_]+)?', *args, **kwargs)
+        super().__init__('(?:list)\ ?([a-z\.=,:]+)?(?:\ fields\ )?([\-a-zA-Z0-9\,_]+)?', *args, **kwargs)
 
     def handle(self, data, reply):
         search_opts, result_fields = self.current_match.groups()
