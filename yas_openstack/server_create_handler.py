@@ -27,16 +27,16 @@ class OpenStackServerCreateHandler(OpenStackHandler):
                          '(?:\ from\ )?([-:/\w]+)?',
                          *args, **kwargs)
         self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
-        self.creators = [self.__retrieve_user_id(username) for username in config.creator_list]
+        self.creators = [self._retrieve_user_id(username) for username in self.config.creator_list]
         self.creators.append('')
 
     def handle(self, data, reply):
         name, branch, meta_string, image = self.current_match.groups()
         self.log('INFO', f"Received request for {name} on {branch} from {image}")
 
-        creator_info = self.__get_user_info(data.get('user', ''))
+        creator_info = self._retrieve_user_info(data.get('user', ''))
         if not data.get('user', '') in self.creators:
-            self.log('INFO', f"Reject creation request from individual not on the list ({data.get('user', 'unknown'}).")
+            self.log('INFO', f"Reject creation request from individual not on the list ({data.get('user', 'unknown')}.")
             return reply(f"Sorry, this action is restricted to certain users. Please request access from devops.")
 
         if self.server_manager.findall(name=name):
@@ -46,7 +46,6 @@ class OpenStackServerCreateHandler(OpenStackHandler):
 
         meta = _parse_meta(meta_string)
 
-        creator_info = self.__get_user_info(data.get('user', ''))
         if creator_info:
             meta['owner'] = creator_info['user']['profile']['real_name']
         else:
