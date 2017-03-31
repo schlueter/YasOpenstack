@@ -27,22 +27,22 @@ class OpenStackServerCreateHandler(OpenStackHandler):
                          '(?:\ from\ )?([-:/\w]+)?',
                          *args, **kwargs)
         self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
-
-    def __get_user_info(self, user_id):
-        try:
-            creator_info = self.api_call('users.info', user=user_id)
-        except Exception as e:
-            self.log('WARN', f"Caught {e} while retrieving creator_info.")
-            creator_info = None
-        return creator_info
+        self.creators = [self.__retrieve_user_id(username) for username in config.creator_list]
+        self.creators.append('')
 
     def handle(self, data, reply):
         name, branch, meta_string, image = self.current_match.groups()
         self.log('INFO', f"Received request for {name} on {branch} from {image}")
-        reply(f"Received request for creation of {name}", thread=data['ts'])
+
+        creator_info = self.__get_user_info(data.get('user', ''))
+        if not data.get('user', '') in self.creators:
+            self.log('INFO', f"Reject creation request from individual not on the list ({data.get('user', 'unknown'}).")
+            return reply(f"Sorry, this action is restricted to certain users. Please request access from devops.")
 
         if self.server_manager.findall(name=name):
             return reply(f"{name} already exists.")
+
+        reply(f"Received request for creation of {name}", thread=data['ts'])
 
         meta = _parse_meta(meta_string)
 

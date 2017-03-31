@@ -17,5 +17,6 @@ PARAMETERS = dict(
         userdata='',
         key_name=''
     ),
-    default_list_result_fields=['metadata', 'name']
+    default_list_result_fields=['metadata', 'name'],
+    creator_list=[]
 )
