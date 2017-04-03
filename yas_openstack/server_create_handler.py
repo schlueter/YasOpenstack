@@ -35,6 +35,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         self.log('INFO', f"Received request for {name} on {branch} from {image}")
 
         creator_info = self._retrieve_user_info(data.get('user', ''))
+        self.log('DEBUG', f'Retrieved creator_info:\n{creator_info}')
         if not data.get('user', '') in self.creators:
             self.log('INFO', f"Reject creation request from individual not on the list ({data.get('user', 'unknown')}.")
             return reply(f"Sorry, this action is restricted to certain users. Please request access from devops.")
@@ -46,7 +47,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
 
         meta = _parse_meta(meta_string)
 
-        if creator_info:
+        if creator_info and 'user' in creator_info:
             meta['owner'] = creator_info['user']['profile']['real_name']
         else:
             meta['owner'] = 'unknown'
