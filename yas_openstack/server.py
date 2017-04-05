@@ -1,7 +1,7 @@
-from yas_openstack import OpenStackConnection
+from yas_openstack import Client
 
 
-class ServerManager(OpenStackConnection):
+class ServerManager(Client):
 
     def __init__(self):
         super().__init__()
@@ -11,11 +11,11 @@ class ServerManager(OpenStackConnection):
         default_flavor_name = self.create_server_defaults.get('flavor_name')
         self.default_flavor_id = self.find_flavor_by_name(default_flavor_name)
 
-        self.default_nics=self.create_server_defaults.get('nics')
+        self.default_nics = self.create_server_defaults.get('nics')
 
-        self.default_security_groups=self.create_server_defaults.get('security_groups')
-        self.default_userdata=self.create_server_defaults.get('userdata')
-        self.default_key_name=self.create_server_defaults.get('key_name')
+        self.default_security_groups = self.create_server_defaults.get('security_groups')
+        self.default_userdata = self.create_server_defaults.get('userdata')
+        self.default_key_name = self.create_server_defaults.get('key_name')
 
     def search_for_current_image(self, name):
         images = [image for image in self.image.images() if image.name.startswith(name) and 'current' in image.tags]
@@ -29,7 +29,6 @@ class ServerManager(OpenStackConnection):
         return self.compute.find_flavor(flavor_name).id
 
     def create(self, name, **kwargs):
-
         image_id = self.find_image_by_name(kwargs.get('image')) or self.default_image_id
         flavor_id = kwargs.get('flavor') or self.default_flavor_id
         security_groups = kwargs.get('security_groups') or self.default_security_groups
@@ -39,11 +38,11 @@ class ServerManager(OpenStackConnection):
         meta = kwargs.get('meta')
         description = kwargs.get('description') or ''
 
-        created_server = self.compute.create_server(
+        created_server = self.servers.create(
             name=name,
-            image_id=image_id,
-            flavor_id=flavor_id,
-            user_data=userdata,
+            image=image_id,
+            flavor=flavor_id,
+            userdata=userdata,
             key_name=key_name,
             nics=nics,
             meta=meta,
@@ -53,10 +52,10 @@ class ServerManager(OpenStackConnection):
 
     def delete(self, **kwargs):
         server = self.find(**kwargs)
-        return self.compute.delete_server(server.id)
+        return server.delete()
 
     def find(self, detailed=True, **kwargs):
-        search_results = self.findall(detailed=detailed, **kwargs)
+        search_results = self.servers.list(detailed=detailed, search_opts=kwargs)
 
         if len(search_results) == 0:
             raise NoServersFound
@@ -67,7 +66,7 @@ class ServerManager(OpenStackConnection):
         return search_results[0]
 
     def findall(self, detailed=True, **kwargs):
-        return list(self.compute.servers(detailed=detailed, **kwargs))
+        return list(self.servers.list(detailed=detailed, search_opts=kwargs))
 
 
 class ServersFoundException(Exception):

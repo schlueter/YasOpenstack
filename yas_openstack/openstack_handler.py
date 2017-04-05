@@ -25,7 +25,7 @@ class OpenStackHandler(RegexHandler):
         potential_userdata_file = os.path.join(sys.prefix, config_userdata)
 
         if os.path.isfile(potential_userdata_file):
-            with  open(potential_userdata_file, 'r') as template_file:
+            with open(potential_userdata_file, 'r') as template_file:
                 template = template_file.read()
         else:
             template = config_userdata
