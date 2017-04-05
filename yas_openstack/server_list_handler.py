@@ -3,6 +3,37 @@ from pprint import pformat
 from yas_openstack.openstack_handler import OpenStackHandler
 from yas_openstack.server import ServersFoundException
 
+# {
+#     "attachments": [
+#         {
+#             "title": "www.fooey.cloud.rf29.net/",
+#             "title_link": "http://www.fooey.cloud.rf29.net/",
+#             "fields": [
+#                 {
+#                     "title": "init",
+#                     "value": "<https://jenkins.prod.rf29.net/view/Openstack/job/CloudInit/500/|Complete>",
+#                     "short": true
+#                 },
+#                 {
+#                     "title": "branch: ",
+#                     "value": "<github.com/refinery29/dash-dam/pull/183|dash-dam:new-examples-dir>",
+#                     "short": true
+#                 },
+#                 {
+#                     "title": "image name",
+#                     "value": "1490904773",
+#                     "short": true
+#                 },
+#                 {
+#                     "title": "image creation date",
+#                     "value": "2017-03-28T16:47:20Z",
+#                     "short": true
+#                 }
+#             ],
+#             "image_url": "http://my-website.com/path/to/image.jpg"
+#         }
+#     ]
+# }
 
 class OpenStackServerListHandler(OpenStackHandler):
 

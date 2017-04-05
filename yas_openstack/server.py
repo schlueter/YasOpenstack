@@ -1,15 +1,15 @@
-from yas_openstack import Client
+from yas_openstack import OpenStackConnection
 
 
-class ServerManager(Client):
+class ServerManager(OpenStackConnection):
 
     def __init__(self):
         super().__init__()
         default_image_name = self.create_server_defaults.get('image_name')
-        self.default_image = self.find_image_by_name(default_image_name)
+        self.default_image_id = self.search_for_current_image(default_image_name)
 
         default_flavor_name = self.create_server_defaults.get('flavor_name')
-        self.default_flavor = self.find_flavor_by_name(default_flavor_name)
+        self.default_flavor_id = self.find_flavor_by_name(default_flavor_name)
 
         self.default_nics=self.create_server_defaults.get('nics')
 
@@ -17,17 +17,21 @@ class ServerManager(Client):
         self.default_userdata=self.create_server_defaults.get('userdata')
         self.default_key_name=self.create_server_defaults.get('key_name')
 
+    def search_for_current_image(self, name):
+        images = [image for image in self.image.images() if image.name.startswith(name) and 'current' in image.tags]
+        return images[0].id
+
     def find_image_by_name(self, image_name):
         if image_name:
-            return self._novaclient.glance.find_image(image_name)
+            return self.image.find_image(image_name).id
 
     def find_flavor_by_name(self, flavor_name):
-        return self._novaclient.flavors.find(name=flavor_name).id
+        return self.compute.find_flavor(flavor_name).id
 
     def create(self, name, **kwargs):
 
-        image = self.find_image_by_name(kwargs.get('image')) or self.default_image
-        flavor = kwargs.get('flavor') or self.default_flavor
+        image_id = self.find_image_by_name(kwargs.get('image')) or self.default_image_id
+        flavor_id = kwargs.get('flavor') or self.default_flavor_id
         security_groups = kwargs.get('security_groups') or self.default_security_groups
         userdata = kwargs.get('userdata') or self.default_userdata
         key_name = kwargs.get('key_name') or self.default_key_name
@@ -35,11 +39,11 @@ class ServerManager(Client):
         meta = kwargs.get('meta')
         description = kwargs.get('description') or ''
 
-        created_server = self.servers.create(
-            name,
-            image=image,
-            flavor=flavor,
-            userdata=userdata,
+        created_server = self.compute.create_server(
+            name=name,
+            image_id=image_id,
+            flavor_id=flavor_id,
+            user_data=userdata,
             key_name=key_name,
             nics=nics,
             meta=meta,
@@ -49,10 +53,10 @@ class ServerManager(Client):
 
     def delete(self, **kwargs):
         server = self.find(**kwargs)
-        return server.delete()
+        return self.compute.delete_server(server.id)
 
     def find(self, detailed=True, **kwargs):
-        search_results = self.servers.list(detailed=detailed, search_opts=kwargs)
+        search_results = self.findall(detailed=detailed, **kwargs)
 
         if len(search_results) == 0:
             raise NoServersFound
@@ -63,7 +67,7 @@ class ServerManager(Client):
         return search_results[0]
 
     def findall(self, detailed=True, **kwargs):
-        return self.servers.list(detailed=detailed, search_opts=kwargs)
+        return list(self.compute.servers(detailed=detailed, **kwargs))
 
 
 class ServersFoundException(Exception):
