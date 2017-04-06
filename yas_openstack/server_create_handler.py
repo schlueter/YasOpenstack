@@ -40,7 +40,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
             self.log('INFO', f"Reject creation request from individual not on the list ({data.get('user', 'unknown')}.")
             return reply(f"Sorry, this action is restricted to certain users. Please request access from devops.")
 
-        if self.server_manager.findall(name=name):
+        if self.server_manager.findall(name=f"^{name}$"):
             return reply(f"{name} already exists.")
 
         reply(f"Received request for creation of {name}", thread=data['ts'])
