@@ -48,7 +48,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         meta = _parse_meta(meta_string)
 
         if creator_info and 'user' in creator_info:
-            meta['owner'] = creator_info['user']['profile']['real_name']
+            meta['owner'] = creator_info['user']['name']
         else:
             meta['owner'] = 'unknown'
         meta['owner_id'] = data.get('user', None) or data.get('bot_id', 'unknown')
