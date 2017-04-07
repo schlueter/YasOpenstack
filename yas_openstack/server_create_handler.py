@@ -1,5 +1,8 @@
 import json
+import os
+import sys
 
+from jinja2 import Template
 from novaclient.exceptions import Forbidden
 
 from yas_openstack.openstack_handler import OpenStackHandler
@@ -29,6 +32,19 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
         self.creators = [self._retrieve_user_id(username) for username in self.config.creator_list]
         self.creators.append('')
+        self.template = self.get_userdata_template()
+
+    def get_userdata_template(self):
+        config_userdata = self.config.create_server_defaults.get('userdata', '')
+        potential_userdata_file = os.path.join(sys.prefix, config_userdata)
+
+        if os.path.isfile(potential_userdata_file):
+            with open(potential_userdata_file, 'r') as template_file:
+                template = template_file.read()
+        else:
+            template = config_userdata
+
+        return Template(template)
 
     def handle(self, data, reply):
         name, branch, meta_string, image = self.current_match.groups()

@@ -5,14 +5,9 @@ class ServerManager(Client):
 
     def __init__(self):
         super().__init__()
-        default_image_name = self.create_server_defaults.get('image_name')
-        self.default_image_id = self.search_for_current_image(default_image_name)
-
-        default_flavor_name = self.create_server_defaults.get('flavor_name')
-        self.default_flavor_id = self.find_flavor_by_name(default_flavor_name)
-
+        self.default_image_name = self.create_server_defaults.get('image_name')
+        self.default_flavor_name = self.create_server_defaults.get('flavor_name')
         self.default_nics = self.create_server_defaults.get('nics')
-
         self.default_security_groups = self.create_server_defaults.get('security_groups')
         self.default_userdata = self.create_server_defaults.get('userdata')
         self.default_key_name = self.create_server_defaults.get('key_name')
@@ -29,8 +24,8 @@ class ServerManager(Client):
         return self.compute.find_flavor(flavor_name).id
 
     def create(self, name, **kwargs):
-        image_id = self.find_image_by_name(kwargs.get('image')) or self.default_image_id
-        flavor_id = kwargs.get('flavor') or self.default_flavor_id
+        image_id = self.find_image_by_name(kwargs.get('image')) or self.search_for_current_image(self.default_image_name)
+        flavor_id = kwargs.get('flavor') or self.find_flavor_by_name(self.default_flavor_name)
         security_groups = kwargs.get('security_groups') or self.default_security_groups
         userdata = kwargs.get('userdata') or self.default_userdata
         key_name = kwargs.get('key_name') or self.default_key_name
