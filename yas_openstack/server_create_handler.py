@@ -59,8 +59,6 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         if self.server_manager.findall(name=f"^{name}$"):
             return reply(f"{name} already exists.")
 
-        reply(f"Received request for creation of {name}", thread=data['ts'])
-
         meta = _parse_meta(meta_string)
 
         if creator_info and 'user' in creator_info:
@@ -80,5 +78,5 @@ class OpenStackServerCreateHandler(OpenStackHandler):
                 return reply(forbidden.message)
             raise forbidden
 
-        reply(f'Requested creation of {name} with id {server.id}', thread=data['ts'])
+        reply(f'Requested creation of {name} with id {server.id}')
         self.log('DEBUG', f'Created used userdata:\n{userdata}')
