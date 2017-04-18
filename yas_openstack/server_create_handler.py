@@ -26,7 +26,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
     def __init__(self, *args, **kwargs):
         super().__init__('(?:launch|start|create)\ ([-\w]+)'
                          '(?:\ on\ )?([-\w]+:?[-\w/]+)?'
-                         '(?:\ meta\ )?([\w=,]+)?'
+                         '(?:\ meta\ )?([\w=,:]+)?'
                          '(?:\ from\ )?([-:/\w]+)?',
                          *args, **kwargs)
         self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
