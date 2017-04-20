@@ -6,14 +6,13 @@ from jinja2 import Template
 from novaclient.exceptions import Forbidden
 
 from yas_openstack.openstack_handler import OpenStackHandler
-from yas_openstack.server import NoServersFound, MultipleServersFound
 
 
 def _parse_meta(meta_string):
     if meta_string:
         try:
             meta_dict = dict(pair.split('=') for pair in meta_string.split(','))
-        except ValueError as e:
+        except ValueError:
             raise ValueError('Invalid meta, format must be "key=value,key=value..."')
         for key in meta_dict:
             meta_dict[key] = meta_dict[key] or ''
@@ -24,10 +23,10 @@ def _parse_meta(meta_string):
 class OpenStackServerCreateHandler(OpenStackHandler):
 
     def __init__(self, *args, **kwargs):
-        super().__init__('(?:launch|start|create)\ ([-\w]+)'
-                         '(?:\ on\ )?([-\w]+:?[-\w/]+)?'
-                         '(?:\ meta\ )?([\w=,:]+)?'
-                         '(?:\ from\ )?([-:/\w]+)?',
+        super().__init__(r'(?:launch|start|create)\ ([-\w]+)'
+                         r'(?:\ on\ )?([-\w]+:?[-\w/]+)?'
+                         r'(?:\ meta\ )?([\w=,:]+)?'
+                         r'(?:\ from\ )?([-:/\w]+)?',
                          *args, **kwargs)
         self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
         self.creators = [self._retrieve_user_id(username) for username in self.config.creator_list]
@@ -76,6 +75,8 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         except Forbidden as forbidden:
             if "Quota exceeded" in forbidden.message:
                 return reply(forbidden.message)
+            # TODO I dont' know why this is necessary
+            # pylint: disable=raising-bad-type
             raise forbidden
 
         reply(f'Requested creation of {name} with id {server.id}')

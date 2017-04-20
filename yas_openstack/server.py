@@ -13,7 +13,8 @@ class ServerManager(Client):
         self.default_key_name = self.create_server_defaults.get('key_name')
 
     def search_for_current_image(self, name):
-        images = [image for image in self.image.images() if image.name.startswith(name) and 'current' in image.tags]
+        images = [image for image in self.image.images()
+                  if image.name.startswith(name) and 'current' in image.tags]
         return images[0].id
 
     def find_image_by_name(self, image_name):
@@ -24,9 +25,10 @@ class ServerManager(Client):
         return self.compute.find_flavor(flavor_name).id
 
     def create(self, name, **kwargs):
-        image_id = self.find_image_by_name(kwargs.get('image')) or self.search_for_current_image(self.default_image_name)
+        image_id = self.find_image_by_name(kwargs.get('image')) or \
+                   self.search_for_current_image(self.default_image_name)
         flavor_id = kwargs.get('flavor') or self.find_flavor_by_name(self.default_flavor_name)
-        security_groups = kwargs.get('security_groups') or self.default_security_groups
+        # security_groups = kwargs.get('security_groups') or self.default_security_groups
         userdata = kwargs.get('userdata') or self.default_userdata
         key_name = kwargs.get('key_name') or self.default_key_name
         nics = kwargs.get('nics') or self.default_nics
@@ -52,7 +54,7 @@ class ServerManager(Client):
     def find(self, detailed=True, **kwargs):
         search_results = self.servers.list(detailed=detailed, search_opts=kwargs)
 
-        if len(search_results) == 0:
+        if not search_results:
             raise NoServersFound
 
         if len(search_results) > 1:
@@ -70,7 +72,10 @@ class ServersFoundException(Exception):
 
 class NoServersFound(ServersFoundException):
     def __init__(self):
-        super().__init__('No servers found matching the specified search options. Refer to <https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detail#id4|the docs> for available search parameters.')
+        super().__init__(
+            'No servers found matching the specified search options. Refer to '
+            '<https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detail#id4|the docs> '
+            'for available search parameters.')
 
 
 class MultipleServersFound(ServersFoundException):
@@ -78,5 +83,6 @@ class MultipleServersFound(ServersFoundException):
         super().__init__('\n'.join(
             [f'Found multiple servers: {", ".join([str(dict(name=server.name, id=server.id)) for server in servers])}',
              '',
-             'Refer to <https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detail#id4|the docs> for available search parameters to make your query more specific.']))
-
+             'Refer to '
+             '<https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detail#id4|the docs> '
+             'for available search parameters to make your query more specific.']))

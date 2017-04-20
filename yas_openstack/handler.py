@@ -1,4 +1,4 @@
-
+# pylint: disable=unused-import
 from yas_openstack.server_delete_handler import OpenStackServerDeleteHandler
 from yas_openstack.server_list_handler import OpenStackServerListHandler
 from yas_openstack.server_create_handler import OpenStackServerCreateHandler

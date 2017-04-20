@@ -4,7 +4,7 @@ from yas_openstack.server import ServerManager
 from yas_openstack.yaml_file_config import YamlConfiguration
 
 
-config = YamlConfiguration()
+CONFIG = YamlConfiguration()
 
 class OpenStackHandler(RegexHandler):
 
@@ -12,4 +12,4 @@ class OpenStackHandler(RegexHandler):
         super().__init__(*args, **kwargs)
         self.server_manager = ServerManager()
         self.matches = {}
-        self.config = config
+        self.config = CONFIG
