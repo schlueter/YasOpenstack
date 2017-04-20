@@ -41,14 +41,15 @@ class OpenStackServerListHandler(OpenStackHandler):
                       attachments=attachments)
 
     def parse_server_to_attachment(self, server):
+
         self.log('DEBUG', f"Parsing server:\n{pformat(server)}")
         addresses = [interface['addr']
-                     for provider in server['addresses']
-                     for interface in server['addresses'][provider]]
-
+                     for network in server['addresses']
+                     for interface in server['addresses'][network]]
 
         init = server['metadata'].get('init')
         test = server['metadata'].get('test')
+
         if init == 'done':
             if test == 'pass':
                 attachment_color = '#7D7'
@@ -72,11 +73,13 @@ class OpenStackServerListHandler(OpenStackHandler):
         for key in ['owner_id']:
             server['metadata'].pop(key, None)
 
-        fields = [dict(title=key, value=server['metadata'][key], short=True) for key in server['metadata']]
+        fields = [dict(title=key, value=server['metadata'][key], short=True)
+                  for key in server['metadata'] if server['metadata'][key]]
+        fields.append(dict(title='addresses', value=', '.join(addresses), short=len(addresses) == 1))
         fields.append(dict(title='id', value=server['id'], short=False))
-        fields.append(dict(title='addresses', value=addresses, short=len(addresses) == 1))
+
         return dict(
-            title=server['name'],
+            title=f"{server['name']}.{self.config.domain}",
             title_link=f"http://www.{server['name']}.{self.config.domain}",
             fields=fields,
             color=attachment_color)
