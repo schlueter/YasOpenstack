@@ -78,7 +78,7 @@ class ServerManager(Client):
         if metadata:
             filtered_results = [server for server in servers if metadata_filter(server)]
         else:
-            filtered_results = search_results
+            filtered_results = servers
 
         return filtered_results
 
