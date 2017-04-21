@@ -51,20 +51,36 @@ class ServerManager(Client):
         server = self.find(**kwargs)
         return server.delete()
 
-    def find(self, detailed=True, **kwargs):
-        search_results = self.servers.list(detailed=detailed, search_opts=kwargs)
+    def find(self, detailed=True, metadata=None, **kwargs):
+        servers = self.findall(detailed=detailed, metadata=metadata, **kwargs)
 
-        if not search_results:
+        if not servers:
             raise NoServersFound
 
-        if len(search_results) > 1:
-            raise MultipleServersFound(search_results)
+        if len(servers) > 1:
+            raise MultipleServersFound(servers)
 
-        return search_results[0]
+        return servers[0]
 
-    def findall(self, detailed=True, **kwargs):
-        return list(self.servers.list(detailed=detailed, search_opts=kwargs))
+    def findall(self, detailed=True, metadata=None, **kwargs):
+        servers = self.servers.list(detailed=detailed, search_opts=kwargs)
 
+        def metadata_filter(server, criteria=metadata):
+            results = []
+            for criterion in criteria:
+                result = server.metadata.get(criterion.lstrip('!')) == criteria[criterion]
+                if criterion.startswith('!'):
+                    results.append(not result)
+                else:
+                    results.append(result)
+            return all(results)
+
+        if metadata:
+            filtered_results = [server for server in servers if metadata_filter(server)]
+        else:
+            filtered_results = search_results
+
+        return filtered_results
 
 class ServersFoundException(Exception):
     pass

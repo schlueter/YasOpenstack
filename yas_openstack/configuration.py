@@ -18,6 +18,5 @@ PARAMETERS = dict(
         key_name=''
     ),
     default_list_result_fields=[],
-    creator_list=[],
     domain='local'
 )

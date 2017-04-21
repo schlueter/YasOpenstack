@@ -9,8 +9,6 @@ class OpenStackServerDeleteHandler(OpenStackHandler):
 
     def handle(self, data, reply):
         name = self.current_match.groups()[0]
-        reply(f"Requesting deletion of {name}", thread=data['ts'])
-
         try:
             self.server_manager.delete(name=f'^{name}$')
         except ServersFoundException as err:

@@ -29,8 +29,6 @@ class OpenStackServerCreateHandler(OpenStackHandler):
                          r'(?:\ from\ )?([-:/\w]+)?',
                          *args, **kwargs)
         self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
-        self.creators = [self._retrieve_user_id(username) for username in self.config.creator_list]
-        self.creators.append('')
         self.template = self.get_userdata_template()
 
     def get_userdata_template(self):
@@ -50,11 +48,6 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         self.log('INFO', f"Received request for {name} on {branch} from {image}")
 
         creator_info = self._retrieve_user_info(data.get('user', ''))
-        self.log('DEBUG', f'Retrieved creator_info:\n{creator_info}')
-        if not data.get('user', '') in self.creators:
-            self.log('INFO', f"Reject creation request from individual not on the list ({data.get('user', 'unknown')}.")
-            return reply(f"Sorry, this action is restricted to certain users. Please request access from devops.")
-
         if self.server_manager.findall(name=f"^{name}$"):
             return reply(f"{name} already exists.")
 
