@@ -8,7 +8,8 @@ class OpenStackServerListHandler(OpenStackHandler):
 
     search_error_message = (
         'Invalid search opts, list query must look like: '
-        '```list[ search_opts <sort query>=<argument>[,<query>=<argument>[,...]][ metadata <key>=<value>[,<key>=<value>]]```\n'
+        '```list[ search_opts <sort query>=<argument>[,<query>=<argument>[,...]]'
+        '[ meta[data] <key>=<value>[,<key>=<value>]]```\n'
         'For example:\n&gt; list search_opts state=Running metadata owner=tswift\n'
         'Available sort queries and fields may be found in the '
         # pylint: disable=line-too-long
@@ -17,18 +18,18 @@ class OpenStackServerListHandler(OpenStackHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(r'(?:list)'
                          r'(?:(?:\ search_opts )([a-z\.=,:\ ]+))?'
-                         r'(?:(?:\ metadata\ )([\-a-zA-Z0-9\,_=]+))?',
+                         r'(?:(?:\ meta(?:data)?\ )(!?[\-a-zA-Z0-9\,_=]+))?',
                          *args, **kwargs)
 
     def handle(self, data, reply):
         raw_search_opts, raw_metadata = self.current_match.groups()
-        self.log('DEBUG', f"Parsed from {data['yas_hash']} search_opts:\n{raw_search_opts}\nand metadata:\n{raw_metadata}")
+        self.log('DEBUG', f"{data['yas_hash']} raw_search_opts:\n{raw_search_opts}\nand raw_metadata:\n{raw_metadata}")
 
         if raw_search_opts:
             try:
                 search_opts = dict(opt.split('=') for opt in raw_search_opts.split(','))
             except ValueError:
-                return reply(search_error_message)
+                return reply(self.search_error_message)
 
         else:
             search_opts = {}
@@ -37,8 +38,9 @@ class OpenStackServerListHandler(OpenStackHandler):
             try:
                 metadata = dict(opt.split('=') for opt in raw_metadata.split(','))
             except ValueError:
-                return reply(search_error_message)
+                return reply(self.search_error_message)
         else:
+            # TODO make configurable
             metadata = {'owner_id': data.get('user')}
 
         self.log('DEBUG', f"{data['yas_hash']} final search_opts:\n{search_opts}\nand metadata:\n{metadata}")
@@ -46,7 +48,12 @@ class OpenStackServerListHandler(OpenStackHandler):
         try:
             servers = self.server_manager.findall(metadata=metadata, **search_opts)
         except ServersFoundException as err:
-            reply(f'There was an issue finding {search_opts}: {err}', thread=data['ts'])
+            reply(f'There was an issue finding {search_opts}: {err}')
+
+        if not servers:
+            options = {**search_opts, **metadata}
+            option_string = ", ".join([opt + "=" + options[opt] for opt in options])
+            reply(f'No servers found matching search options {option_string}.')
 
         attachments = [self.parse_server_to_attachment(server.to_dict(), metadata) for server in servers]
 
