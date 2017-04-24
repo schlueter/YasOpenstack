@@ -15,7 +15,10 @@ class ServerManager(Client):
     def search_for_current_image(self, name):
         images = [image for image in self.image.images()
                   if image.name.startswith(name) and 'current' in image.tags]
-        return images[0].id
+        try:
+            return images[0].id
+        except IndexError:
+            raise Exception(f"Found no images with a name starting with {name} tagged as current")
 
     def find_image_by_name(self, image_name):
         if image_name:

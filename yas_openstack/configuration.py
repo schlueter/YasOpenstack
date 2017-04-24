@@ -13,7 +13,7 @@ PARAMETERS = dict(
         flavor_name='default',
         nics='auto',
         security_groups=[],
-        # Userdata contents or a path to a file
+        neptune_branch='master',
         userdata='',
         key_name=''
     ),
