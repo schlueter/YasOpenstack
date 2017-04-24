@@ -18,7 +18,7 @@ class OpenStackServerListHandler(OpenStackHandler):
         '<https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detailed-detail#list-servers-detailed|docs>.')
 
     def __init__(self, *args, **kwargs):
-        super().__init__(r'(?:list)'
+        super().__init__(r'(?:list)\ ?(all)?'
                          r'(?:(?:\ search_opts )([a-z\.=,:\ ]+))?'
                          r'(?:(?:\ meta(?:data)?\ )(!?[\-a-zA-Z0-9\,_=]+))?',
                          *args, **kwargs)
@@ -31,7 +31,7 @@ class OpenStackServerListHandler(OpenStackHandler):
         return default_search_options
 
     def handle(self, data, reply):
-        raw_search_opts, raw_metadata = self.current_match.groups()
+        modifier, raw_search_opts, raw_metadata = self.current_match.groups()
         self.log('DEBUG', f"{data['yas_hash']} raw_search_opts:\n{raw_search_opts}\nand raw_metadata:\n{raw_metadata}")
 
         if raw_search_opts or raw_metadata:
@@ -47,7 +47,8 @@ class OpenStackServerListHandler(OpenStackHandler):
 
             search_opts['metadata'] = metadata
         else:
-            search_opts = self.get_default_search_options(data)
+            metadata = {}
+            search_opts = dict(metadata=metadata) if modifier == 'all' else self.get_default_search_options(data)
         try:
             servers = self.server_manager.findall(**search_opts)
         except ServersFoundException as err:
