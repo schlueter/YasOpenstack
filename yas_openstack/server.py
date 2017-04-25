@@ -85,6 +85,33 @@ class ServerManager(Client):
 
         return filtered_results
 
+    def parse_search_args(self, raw_metadata='', raw_search_opts=''):
+        try:
+            search_opts = dict(opt.split('=') for opt in (raw_search_opts or '').split(',') if not opt == '')
+        except ValueError:
+            raise SearchOptionParseError
+
+        try:
+            metadata = dict(opt.split('=') for opt in (raw_metadata or '').split(',') if not opt == '')
+        except ValueError:
+            raise SearchOptionParseError
+
+        search_opts['metadata'] = metadata
+
+        return search_opts
+
+
+class SearchOptionParseError(Exception):
+    def __init__(self):
+        super().__init__(
+            'Invalid search opts, request must look like  '
+            '```<verb>[ search_opts <sort query>=<argument>[,<query>=<argument>[,...]]'
+            '[ meta[data] <key>=<value>[,<key>=<value>]]```\n'
+            'For example:\n&gt; list search_opts state=Running metadata owner=tswift\n'
+            'Available sort queries and fields may be found in the '
+            # pylint: disable=line-too-long
+            '<https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detailed-detail#list-servers-detailed|docs>.')
+
 class ServersFoundException(Exception):
     pass
 

@@ -3,61 +3,53 @@ from pprint import pformat
 from jinja2 import Template
 
 from yas_openstack.openstack_handler import OpenStackHandler
-from yas_openstack.server import ServersFoundException
 
 
 class OpenStackServerListHandler(OpenStackHandler):
 
-    search_error_message = (
-        'Invalid search opts, list query must look like: '
-        '```list[ search_opts <sort query>=<argument>[,<query>=<argument>[,...]]'
-        '[ meta[data] <key>=<value>[,<key>=<value>]]```\n'
-        'For example:\n&gt; list search_opts state=Running metadata owner=tswift\n'
-        'Available sort queries and fields may be found in the '
-        # pylint: disable=line-too-long
-        '<https://developer.openstack.org/api-ref/compute/?expanded=list-servers-detailed-detail#list-servers-detailed|docs>.')
-
     def __init__(self, *args, **kwargs):
         super().__init__(r'(?:list)\ ?(all)?'
-                         r'(?:(?:\ search_opts )([a-z\.=,:\ ]+))?'
-                         r'(?:(?:\ meta(?:data)?\ )(!?[\-a-zA-Z0-9\,_=]+))?',
+                         r'(?:(?:search_opts )([a-z\.=,:\ ]+))?'
+                         r'(?:(?:meta(?:data)?\ )(!?[\-a-zA-Z0-9\,_=]+))?',
                          *args, **kwargs)
 
     def get_default_search_options(self, data):
-        raw_default_search_options = Template(self.config.default_search_options).render(**data)
+        raw_default_search_options = Template(self.config.default_search_opts).render(**data)
         raw_default_search_metadata = Template(self.config.default_search_metadata).render(**data)
         default_search_options = dict(opt.split('=') for opt in raw_default_search_options.split(',') if not opt == '')
-        default_search_options['metadata'] = dict(opt.split('=') for opt in raw_default_search_metadata.split(',') if not opt == '')
+        default_search_options['metadata'] = dict(
+            opt.split('=')
+            for opt in raw_default_search_metadata.split(',')
+            if not opt == '')
         return default_search_options
 
-    def handle(self, data, reply):
+    def handle(self, data, _):
         modifier, raw_search_opts, raw_metadata = self.current_match.groups()
-        self.log('DEBUG', f"{data['yas_hash']} raw_search_opts:\n{raw_search_opts}\nand raw_metadata:\n{raw_metadata}")
+        self.log('DEBUG',
+                 f"{data['yas_hash']} raw_search_opts: {raw_search_opts}"
+                 "and raw_metadata: {raw_metadata} and modifier: {modifier}")
 
-        if raw_search_opts or raw_metadata:
-            try:
-                search_opts = dict(opt.split('=') for opt in (raw_search_opts or '').split(',') if not opt == '')
-            except ValueError:
-                return reply(self.search_error_message)
+        raw_default_search_opts = Template(self.config.default_search_opts).render(**data)
+        raw_default_search_metadata = Template(self.config.default_search_metadata).render(**data)
 
-            try:
-                metadata = dict(opt.split('=') for opt in (raw_metadata or '').split(',') if not opt == '')
-            except ValueError:
-                return reply(self.search_error_message)
-
-            search_opts['metadata'] = metadata
+        if modifier == 'all':
+            search_opts = dict(metadata={})
         else:
-            metadata = {}
-            search_opts = dict(metadata=metadata) if modifier == 'all' else self.get_default_search_options(data)
-        try:
-            servers = self.server_manager.findall(**search_opts)
-        except ServersFoundException as err:
-            reply(f'There was an issue finding {search_opts}: {err}')
+            search_opts = self.server_manager.parse_search_args(
+                raw_metadata=raw_metadata if raw_search_opts or raw_metadata else raw_default_search_metadata,
+                raw_search_opts=raw_search_opts if raw_search_opts or raw_metadata else raw_default_search_opts)
+
+        servers = self.server_manager.findall(**search_opts)
+
+        attachments = [
+            self.parse_server_to_attachment(
+                server.to_dict(),
+                search_opts['metadata'])
+            for server in servers
+        ]
 
         options = {**search_opts, **search_opts['metadata']}
         option_string = ", ".join([opt + "=" + options[opt] for opt in options if isinstance(options[opt], str)])
-
-        attachments = [self.parse_server_to_attachment(server.to_dict(), metadata) for server in servers]
 
         self.api_call('chat.postMessage',
                       text=f"Found {len(servers)} servers with search options {option_string}:",
