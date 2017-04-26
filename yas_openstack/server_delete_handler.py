@@ -6,7 +6,7 @@ class OpenStackServerDeleteHandler(OpenStackHandler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(r'(?:delete|drop|terminate|bust a cap in|pop a cap in)'
-                         r'(?:\ (?:search_opts )([a-z\.=,:\ ]+))?'
+                         r'(?:\ (?:search_opts )([a-z\.=,:]+))?'
                          r'(?:\ (?:meta(?:data)?\ )([a-zA-Z0-9,_=:\'\-]+))?'
                          r'(?:\ ([-\ \w,_=]+))?',
                          *args, **kwargs)
