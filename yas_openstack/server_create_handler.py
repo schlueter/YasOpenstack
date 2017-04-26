@@ -27,7 +27,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(r'(re)?(?:launch|start|create)\ ([-\w]+)'
                          r'(?:(?:\ on\ )([-\w]+:?[-\w/]+))?'
-                         r'(?:(?:\ meta\ )([\w=,:]+))?'
+                         r'(?:(?:\ meta\ )([-:=,\w]+))?'
                          r'(?:(?:\ from\ )([-:/\w]+))?'
                          r'(?:(?:\ using\ )?([-:/\w]+))?',
                          *args, **kwargs)
