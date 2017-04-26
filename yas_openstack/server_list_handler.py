@@ -27,7 +27,7 @@ class OpenStackServerListHandler(OpenStackHandler):
         modifier, raw_search_opts, raw_metadata = self.current_match.groups()
         self.log('DEBUG',
                  f"{data['yas_hash']} raw_search_opts: {raw_search_opts} "
-                 "and raw_metadata: {raw_metadata or ''} and modifier: {modifier}")
+                 "and raw_metadata: {raw_metadata} and modifier: {modifier}")
 
         raw_default_search_opts = Template(self.config.default_search_opts).render(**data)
         raw_default_search_metadata = Template(self.config.default_search_metadata).render(**data)
