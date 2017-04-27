@@ -14,7 +14,7 @@ class OpenStackServerDeleteHandler(OpenStackHandler):
     def handle(self, _, reply):
         raw_search_opts, raw_metadata, names = self.current_match.groups()
         if names and (raw_metadata or raw_search_opts):
-            return reply(f':fearful: I don\'t understand. You need to specify either names *or* search parameters')
+            return reply(f":fearful: I don't understand. You need to specify either names *or* search parameters")
 
         elif names:
             for name in names.split():
@@ -29,6 +29,8 @@ class OpenStackServerDeleteHandler(OpenStackHandler):
             search_opts = self.server_manager.parse_search_args(
                 raw_metadata=raw_metadata,
                 raw_search_opts=raw_search_opts)
+            if not 'owner' in search_opts['metadata'] and not 'owner_id' in search_opts['metadata']:
+                return reply(f":fearful: That's too dangerous. Please specify an owner using metadata.")
             servers = self.server_manager.findall(**search_opts)
             if not servers:
                 reply(f'No servers found matching {search_opts}')
