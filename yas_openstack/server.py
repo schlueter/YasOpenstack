@@ -85,6 +85,7 @@ class ServerManager(Client):
 
         return filtered_results
 
+    # pylint: disable=no-self-use
     def parse_search_args(self, raw_metadata='', raw_search_opts=''):
         try:
             search_opts = dict(opt.split('=') for opt in (raw_search_opts or '').split(',') if not opt == '')
