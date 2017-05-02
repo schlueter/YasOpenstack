@@ -8,6 +8,8 @@ CONFIG = YamlConfiguration()
 
 class OpenStackHandler(RegexHandler):
 
+    SEARCH_OPTS_REGEX=r'[\w,_=:\.-]+'
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.server_manager = ServerManager()

@@ -25,11 +25,11 @@ def _parse_meta(meta_string):
 class OpenStackServerCreateHandler(OpenStackHandler):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(r'(re)?(?:launch|start|create)\ ([-\w]+)'
-                         r'(?:(?:\ on\ )([-\w]+:?[-\w/\.]+))?'
-                         r'(?:(?:\ meta\ )([-:=,\w\.]+))?'
-                         r'(?:(?:\ from\ )([-:/\w]+))?'
-                         r'(?:(?:\ using\ )?([-:/\w]+))?',
+        super().__init__(r'(re)?(?:launch|start|create) ([-\w]+)'
+                         r'(?: on ([-\w]+:?[-\w/\.]+))?'
+                         r'(?: meta(?:data)? (' + self.SEARCH_OPTS_REGEX + '))?'
+                         r'(?: from ([-:/\w]+))?'
+                         r'(?: using ([-:/\w]+))?',
                          *args, **kwargs)
         self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
         self.template = self.get_userdata_template()

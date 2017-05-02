@@ -8,9 +8,9 @@ from yas_openstack.openstack_handler import OpenStackHandler
 class OpenStackServerListHandler(OpenStackHandler):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(r'(?:list)\ ?(all)?'
-                         r'(?:(?:search_opts )([a-z\.=,:]+))?'
-                         r'(?:(?:meta(?:data)?\ )(!?[\-a-zA-Z0-9\,_=]+))?',
+        super().__init__(r'(?:list)(?: +(all))?'
+                         r'(?: search_opts (' + self.SEARCH_OPTS_REGEX + '))?'
+                         r'(?: meta(?:data)? (!?' + self.SEARCH_OPTS_REGEX + '))?',
                          *args, **kwargs)
 
     def get_default_search_options(self, data):
