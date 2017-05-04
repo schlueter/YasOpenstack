@@ -20,5 +20,6 @@ PARAMETERS = dict(
     default_search_opts='',
     default_search_metadata='owner_id={{ user }}',
     default_list_result_fields=[],
-    domain='local'
+    domain='local',
+    webhooks={}
 )

@@ -13,17 +13,23 @@ class OpenStackServerDeleteHandler(OpenStackHandler):
 
     def handle(self, _, reply):
         raw_search_opts, raw_metadata, names = self.current_match.groups()
+
+        try:
+            webhook = self.config.webhooks['server']['delete']
+        except KeyError:
+            webhook = None
+
         if names and (raw_metadata or raw_search_opts):
             return reply(f":fearful: I don't understand. You need to specify either names *or* search parameters")
 
         elif names:
             for name in names.split():
                 try:
-                    self.server_manager.delete(name=f'^{name}$')
+                    server = self.server_manager.find(name=f'^{name}$')
                 except ServersFoundException as err:
                     return reply(f'There was an issue finding {name}: {err}')
-
-                reply(f'Deleted {name}.')
+                self.server_manager.delete(server, webhook)
+                reply(f'Deleted {server.name} with id {server.id}.')
 
         elif raw_metadata or raw_search_opts:
             search_opts = self.server_manager.parse_search_args(
@@ -36,5 +42,5 @@ class OpenStackServerDeleteHandler(OpenStackHandler):
                 reply(f'No servers found matching {search_opts}')
             else:
                 for server in servers:
-                    server.delete()
+                    self.server_manager.delete(server, webhook)
                     reply(f'Deleted {server.name} with id {server.id}.')

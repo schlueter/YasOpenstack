@@ -1,3 +1,5 @@
+import urllib
+
 from yas_openstack import Client
 
 
@@ -50,9 +52,15 @@ class ServerManager(Client):
         )
         return created_server
 
-    def delete(self, **kwargs):
-        server = self.find(**kwargs)
-        return server.delete()
+    def delete(self, server, webhook):
+        if webhook:
+            query_params = {**dict(server=server.to_dict()), **webhook.get('params', {})}
+            encoded_query = urllib.parse.urlencode(query_params)
+            uri = webhook['url'] + '?' + encoded_query
+            request = urllib.request.Request(uri, method='POST')
+            urllib.request.urlopen(request)
+        server = self.servers.get(server.id)
+        server.delete()
 
     def find(self, detailed=True, metadata=None, **kwargs):
         servers = self.findall(detailed=detailed, metadata=metadata, **kwargs)
