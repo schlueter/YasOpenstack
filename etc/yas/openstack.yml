@@ -1,16 +1,23 @@
 ---
 # compute_version: '2.38'
 # project_domain_name: default
-user_domain_name: default
 username: None
 password: None
+user_domain_name: default
 project_name: None
 auth_url: http://keystone:5000
 create_server_defaults:
-    image_name: ubuntu/trusty64
-    flavor_name: m1.big
-    # TODO requires neutron client
+    image_name: None
+    flavor_name: None
     nics: auto
     # security_groups:
     # userdata:
     # key_name:
+webhooks:
+  server:
+  # TODO
+  # image
+  # flavor
+  # network
+  # security group
+  # key pair
