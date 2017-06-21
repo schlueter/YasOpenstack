@@ -95,10 +95,13 @@ class OpenStackServerListHandler(OpenStackHandler):
             # Add empty owner to remove from output
             metadata['owner'] = None
 
-        fields = [dict(title=key, value=server['metadata'][key], short=True)
-                  for key in server['metadata'] if not key in metadata and server['metadata'][key]]
-        fields.append(dict(title='addresses', value=', '.join(addresses), short=len(addresses) == 1))
-        fields.append(dict(title='id', value=server['id'], short=False))
+        if 'verbose' in metadata:
+            fields = [dict(title=key, value=server['metadata'][key], short=True)
+                      for key in server['metadata'] if not key in metadata and server['metadata'][key]]
+            fields.append(dict(title='addresses', value=', '.join(addresses), short=len(addresses) == 1))
+            fields.append(dict(title='id', value=server['id'], short=False))
+        else:
+            fields = []
 
         return dict(
             title=f"{server['name']}.{self.config.domain}",
