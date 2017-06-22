@@ -3,3 +3,4 @@ pylint>=1.7
 python-novaclient>=7.1.0
 yas>=0.0.5
 Jinja2>=2.9.5
+openstacksdk==0.9.14
