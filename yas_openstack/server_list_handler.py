@@ -40,11 +40,13 @@ class OpenStackServerListHandler(OpenStackHandler):
                 raw_search_opts=raw_search_opts if raw_search_opts or raw_metadata else raw_default_search_opts)
 
         servers = self.server_manager.findall(**search_opts)
+        verbose = 'verbose' in data['text'].split(' ')
 
         attachments = [
             self.parse_server_to_attachment(
                 server.to_dict(),
-                search_opts['metadata'])
+                search_opts['metadata'],
+                verbose)
             for server in servers
         ]
 
@@ -58,7 +60,7 @@ class OpenStackServerListHandler(OpenStackHandler):
                       reply_broadcast=True,
                       attachments=attachments)
 
-    def parse_server_to_attachment(self, server, metadata):
+    def parse_server_to_attachment(self, server, metadata, verbose):
 
         self.log('DEBUG', f"Parsing server:\n{pformat(server)}")
         addresses = [interface['addr']
@@ -95,7 +97,7 @@ class OpenStackServerListHandler(OpenStackHandler):
             # Add empty owner to remove from output
             metadata['owner'] = None
 
-        if 'verbose' in metadata:
+        if verbose:
             fields = [dict(title=key, value=server['metadata'][key], short=True)
                       for key in server['metadata'] if not key in metadata and server['metadata'][key]]
             fields.append(dict(title='addresses', value=', '.join(addresses), short=len(addresses) == 1))
