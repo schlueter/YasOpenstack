@@ -12,7 +12,7 @@ class OpenStackServerListHandler(OpenStackHandler):
     triggers = ['list']
 
     def __init__(self, bot):
-        super().__init__(r'^(?:list)(?: +(all))?'
+        super().__init__(r'(?:list)(?: +(all))?'
                          r'(?: search_opts (' + self.SEARCH_OPTS_REGEX + '))?'
                          r'(?: meta(?:data)? (!?' + self.SEARCH_OPTS_REGEX + '))?',
                          bot)

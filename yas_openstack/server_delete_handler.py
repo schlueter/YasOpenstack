@@ -9,7 +9,7 @@ class OpenStackServerDeleteHandler(OpenStackHandler):
     triggers = ['drop']
 
     def __init__(self, bot):
-        super().__init__(r'^(?:delete|drop|terminate|bust a cap in|pop a cap in)?'
+        super().__init__(r'(?:delete|drop|terminate|bust a cap in|pop a cap in)'
                          r'(?: search_opts (' + self.SEARCH_OPTS_REGEX + '))?'
                          r'(?: meta(?:data)? (!?' + self.SEARCH_OPTS_REGEX + '))?'
                          r'(?: ([- \w,_=]+))?',
