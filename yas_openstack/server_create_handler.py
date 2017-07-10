@@ -23,7 +23,7 @@ def _parse_meta(meta_string):
     return meta_dict
 
 class OpenStackServerCreateHandler(OpenStackHandler):
-    """Call `launch <name>` to launch an OpenStack instance named `<name>`."""
+    """Launches an OpenStack instance. Takes a single argument: the desired name."""
     triggers = ['launch', 'create', 'start']
 
     def __init__(self, bot):

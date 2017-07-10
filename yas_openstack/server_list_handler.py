@@ -6,7 +6,8 @@ from yas_openstack.openstack_handler import OpenStackHandler
 
 
 class OpenStackServerListHandler(OpenStackHandler):
-    """Call `list` to list your instances; `list all` to list everyone's.
+    """Lists your OpenStack instances.
+    Use `list all` to get a list of everyone's' instances.
     Add `verbose` to get more information like IP, status, and owner.
     """
     triggers = ['list']
