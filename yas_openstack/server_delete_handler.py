@@ -3,10 +3,11 @@ from yas_openstack.server import ServersFoundException
 
 
 class OpenStackServerDeleteHandler(OpenStackHandler):
-    """Drops an OpenStack instance. Takes a single argument: the name(s) of the instance(s).
+    """Drops an OpenStack instance.
+    Takes a single argument: the name(s) of the instance(s).
     Use spaces to separate instances if deleting more than one.
     """
-    triggers = ['drop', 'delete', 'terminate', 'bust a cap in', 'pop a cap in']
+    triggers = ['delete', 'drop', 'terminate', 'bust a cap in', 'pop a cap in']
 
     def __init__(self, bot):
         super().__init__(r'(?:delete|drop|terminate|bust a cap in|pop a cap in)'

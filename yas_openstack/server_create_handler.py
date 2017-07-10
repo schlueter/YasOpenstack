@@ -23,8 +23,10 @@ def _parse_meta(meta_string):
     return meta_dict
 
 class OpenStackServerCreateHandler(OpenStackHandler):
-    """Launches an OpenStack instance. Takes a single argument: the desired name."""
-    triggers = ['launch', 'create', 'start']
+    """Launches an OpenStack instance.
+    Takes a single argument: the desired name.
+    """
+    triggers = ['create', 'launch', 'start']
 
     def __init__(self, bot):
         super().__init__(r'(re)?(?:launch|start|create) ([-\w]+)'
