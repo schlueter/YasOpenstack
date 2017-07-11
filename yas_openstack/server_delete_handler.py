@@ -3,17 +3,21 @@ from yas_openstack.server import ServersFoundException
 
 
 class OpenStackServerDeleteHandler(OpenStackHandler):
+    """Drops an OpenStack instance.
+    Takes a single argument: the name(s) of the instance(s).
+    Use spaces to separate instances if deleting more than one.
+    """
+    triggers = ['delete', 'drop', 'terminate', 'bust a cap in', 'pop a cap in']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, bot):
         super().__init__(r'(?:delete|drop|terminate|bust a cap in|pop a cap in)'
                          r'(?: search_opts (' + self.SEARCH_OPTS_REGEX + '))?'
                          r'(?: meta(?:data)? (!?' + self.SEARCH_OPTS_REGEX + '))?'
                          r'(?: ([- \w,_=]+))?',
-                         *args, **kwargs)
+                         bot)
 
     def handle(self, _, reply):
         raw_search_opts, raw_metadata, names = self.current_match.groups()
-
         try:
             webhook = self.config.webhooks['server']['delete']
         except KeyError:

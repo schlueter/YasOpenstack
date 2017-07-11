@@ -6,12 +6,17 @@ from yas_openstack.openstack_handler import OpenStackHandler
 
 
 class OpenStackServerListHandler(OpenStackHandler):
+    """Lists your OpenStack instances.
+    Use `list all` to get a list of everyone's' instances.
+    Add `verbose` to get more information like IP, status, and owner.
+    """
+    triggers = ['list']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, bot):
         super().__init__(r'(?:list)(?: +(all))?'
                          r'(?: search_opts (' + self.SEARCH_OPTS_REGEX + '))?'
                          r'(?: meta(?:data)? (!?' + self.SEARCH_OPTS_REGEX + '))?',
-                         *args, **kwargs)
+                         bot)
 
     def get_default_search_options(self, data):
         raw_default_search_options = Template(self.config.default_search_opts).render(**data)
@@ -25,8 +30,7 @@ class OpenStackServerListHandler(OpenStackHandler):
 
     def handle(self, data, _):
         modifier, raw_search_opts, raw_metadata = self.current_match.groups()
-        self.log('DEBUG',
-                 f"{data['yas_hash']} raw_search_opts: {raw_search_opts} "
+        self.bot.log.debug(f"{data['yas_hash']} raw_search_opts: {raw_search_opts} "
                  "and raw_metadata: {raw_metadata} and modifier: {modifier}")
 
         raw_default_search_opts = Template(self.config.default_search_opts).render(**data)
@@ -53,7 +57,7 @@ class OpenStackServerListHandler(OpenStackHandler):
         options = {**search_opts, **search_opts['metadata']}
         option_string = ", ".join([opt + "=" + options[opt] for opt in options if isinstance(options[opt], str)])
 
-        self.api_call('chat.postMessage',
+        self.bot.api_call('chat.postMessage',
                       text=f"Found {len(servers)} servers with search options {option_string}:",
                       channel=data['channel'],
                       thread_ts=data['ts'],
@@ -62,7 +66,7 @@ class OpenStackServerListHandler(OpenStackHandler):
 
     def parse_server_to_attachment(self, server, metadata, verbose):
 
-        self.log('DEBUG', f"Parsing server:\n{pformat(server)}")
+        self.bot.log.debug(f"Parsing server:\n{pformat(server)}")
         addresses = [interface['addr']
                      for network in server['addresses']
                      for interface in server['addresses'][network]]

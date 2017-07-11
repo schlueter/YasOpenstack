@@ -23,15 +23,19 @@ def _parse_meta(meta_string):
     return meta_dict
 
 class OpenStackServerCreateHandler(OpenStackHandler):
+    """Launches an OpenStack instance.
+    Takes a single argument: the desired name.
+    """
+    triggers = ['create', 'launch', 'start']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, bot):
         super().__init__(r'(re)?(?:launch|start|create) ([-\w]+)'
                          r'(?: on ([-\w]+:?[-\w/\.]+))?'
                          r'(?: meta(?:data)? (' + self.SEARCH_OPTS_REGEX + '))?'
                          r'(?: from ([-:/\w]+))?'
                          r'(?: using ([-:/\w]+))?',
-                         *args, **kwargs)
-        self.log('DEBUG', f'Initializing OpenStack server create handler with defaults:\n{self.config.__dict__}')
+                         bot)
+        self.bot.log.debug(f'Initializing OpenStack server create handler with defaults:\n{self.bot.config.__dict__}')
         self.template = self.get_userdata_template()
 
     def get_userdata_template(self):
@@ -48,7 +52,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
 
     def handle(self, data, reply):
         recreate, name, branch, meta_string, image, neptune_branch = self.current_match.groups()
-        self.log('INFO', f"Received request for {name} on {branch} from {image}")
+        self.bot.log.info(f"Received request for {name} on {branch} from {image}")
 
         if recreate == 're':
 
@@ -70,7 +74,7 @@ class OpenStackServerCreateHandler(OpenStackHandler):
 
         meta = _parse_meta(meta_string)
 
-        creator_info = self._retrieve_user_info(data.get('user', ''))
+        creator_info = self.bot.retrieve_user_info(data.get('user', ''))
 
         if creator_info and 'user' in creator_info:
             meta['owner'] = creator_info['user']['name']
@@ -98,4 +102,4 @@ class OpenStackServerCreateHandler(OpenStackHandler):
             raise forbidden
 
         reply(f'Requested creation of {name} with id {server.id}')
-        self.log('DEBUG', f'Created used userdata:\n{userdata}')
+        self.bot.log.debug(f'Created used userdata:\n{userdata}')
