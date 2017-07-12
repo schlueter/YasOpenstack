@@ -162,12 +162,13 @@ Here are several issues you may encounter, along with possible diagnoses.
 
     AttributeError: 'YamlConfiguration' object has no attribute 'foo'
 
-    # There are multiple YamlConfigurations in play. Either you have unintentionally
-    # referenced the wrong one, or the attribute you want isn't defined (or both).
-    # OpenStackHandler has a self.config, so classes that extend it can use
-    # self.config.foo. Client doesn't have a self.config. Its attributes are stored
-    # independently, like self.foo. Check that you are looking for foo in the right
-    # place.
+    # There may be multiple YamlConfigurations in play. Either you have unintentionally
+    # referenced the wrong one or the attribute you want isn't defined (or both).
+    # Consider this: some configurations might be stored on the FizzHandler which
+    # defines self.config. In classes that extend the FizzHandler you would use 
+    # self.config.foo to access foo. Some other configurations might be stored on the
+    # BuzzClient. Maybe the BuzzClient doesn't have a self.config; its attributes are
+    # stored independently. You would use self.foo rather than self.config.foo.
 |
 
 .. code:: bash
