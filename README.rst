@@ -74,11 +74,6 @@ Copy three files from ``bot.cloud.rf29.net`` to your local Vagrant directory:
 
 Edit your local copy of ``yas.yml``. Change the ``bot_name`` and ``slack_app_token`` to be the name and API token of your test Slackbot:
 
-.. code:: bash
-
-    # Do this from your local machine
-    vi yas.yml
-
 Launch a local Vagrant instance:
 
 .. code:: bash
@@ -102,7 +97,7 @@ Copy the yml files from earlier into the yas install directory:
 
     # Do this from within the VM
     # Be sure you do it AFTER running pip install, else these files will be overwritten!
-    cp yas.yml openstack.yml /usr/local/lib/pyenv/versions/3.6.0/etc/yas/
+    cp /vagrant/yas.yml /vagrant/openstack.yml /vagrant/userdata. /usr/local/lib/pyenv/versions/3.6.0/etc/yas/
 
 Finally, restart yas ad check the log output to confirm your Slackbot came up without error:
 
@@ -138,6 +133,53 @@ Execute the following:
 .. _yas: https://github.com/refinery29/yas
 .. _YasOpenstack: https://github.com/refinery29/YasOpenstack
 .. _YasExampleHandlers: https://github.com/schlueter/YasExampleHandlers
+
+
+Troubleshooting
+---------------
+
+Here are several issues you may encounter, along with possible diagnoses.
+
+.. code:: bash
+
+    ImportError: No module named 'foo_handler'
+
+    # You may have made a typo or path error. Look at the handlers_list in yas.yml.
+    # Is the path provided for foo_handler accurate? For example, did you write
+    # yas.foo_handler when foo_handler.py is in /yas/handlers?
+|
+
+.. code:: bash
+
+    TypeError: __init__() takes 2 positional arguments but 3 were given
+
+    # For those new to Python: self is always the first argument in an instance method
+    # and it refers to the class. So if you see __init__(self, a, b) and you attempt
+    # to create SomeClass(a, b, c) you will see this error.
+|
+
+.. code:: bash
+
+    AttributeError: 'YamlConfiguration' object has no attribute 'foo'
+
+    # There are multiple YamlConfigurations in play. Either you have unintentionally
+    # referenced the wrong one, or the attribute you want isn't defined (or both).
+    # OpenStackHandler has a self.config, so classes that extend it can use
+    # self.config.foo. Client doesn't have a self.config. Its attributes are stored
+    # independently, like self.foo. Check that you are looking for foo in the right
+    # place.
+|
+
+.. code:: bash
+
+    DiscoveryFailure: Could not determine a suitable URL for the plugin
+
+    # You may have forgotten to overwrite the default value for auth_url in the
+    # installed copy of YasOpenstack. Did you cp openstack.yml into the
+    # /usr/local/lib/pyenv/versions/3.6.0/etc/yas/ directory?
+|
+
+----
 
 :Author: Brandon Schlueter <yas@schlueter.blue>
 :Copyright: Brandon Schlueter 2017
