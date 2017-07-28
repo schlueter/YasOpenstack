@@ -97,7 +97,7 @@ Copy the yml files from earlier into the yas install directory:
 
     # Do this from within the VM
     # Be sure you do it AFTER running pip install, else these files will be overwritten!
-    cp /vagrant/yas.yml /vagrant/openstack.yml /vagrant/userdata. /usr/local/lib/pyenv/versions/3.6.0/etc/yas/
+    cp /vagrant/yas.yml /vagrant/openstack.yml /vagrant/default-userdata.sh /usr/local/lib/pyenv/versions/3.6.0/etc/yas/
 
 Finally, restart yas ad check the log output to confirm your Slackbot came up without error:
 
