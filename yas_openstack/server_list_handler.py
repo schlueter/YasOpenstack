@@ -36,7 +36,7 @@ class OpenStackServerListHandler(OpenStackHandler):
         raw_default_search_opts = Template(self.config.default_search_opts).render(**data)
         raw_default_search_metadata = Template(self.config.default_search_metadata).render(**data)
 
-        if modifier == 'all':
+        if modifier.lower() == 'all':
             search_opts = dict(metadata={})
         else:
             search_opts = self.server_manager.parse_search_args(
@@ -44,7 +44,7 @@ class OpenStackServerListHandler(OpenStackHandler):
                 raw_search_opts=raw_search_opts if raw_search_opts or raw_metadata else raw_default_search_opts)
 
         servers = self.server_manager.findall(**search_opts)
-        verbose = 'verbose' in data['text'].split(' ')
+        verbose = 'verbose' in data['text'].lower().split(' ')
 
         attachments = [
             self.parse_server_to_attachment(
