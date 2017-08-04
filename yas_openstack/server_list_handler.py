@@ -36,7 +36,7 @@ class OpenStackServerListHandler(OpenStackHandler):
         raw_default_search_opts = Template(self.config.default_search_opts).render(**data)
         raw_default_search_metadata = Template(self.config.default_search_metadata).render(**data)
 
-        if modifier.lower() == 'all':
+        if type(modifier) == str and modifier.lower() == 'all':
             search_opts = dict(metadata={})
         else:
             search_opts = self.server_manager.parse_search_args(
