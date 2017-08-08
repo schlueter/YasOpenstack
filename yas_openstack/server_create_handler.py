@@ -56,18 +56,12 @@ class OpenStackServerCreateHandler(OpenStackHandler):
 
         if recreate == 're':
 
-            # TODO move this to OpenStackHandler so its not dup'd
-            try:
-                webhook = self.config.webhooks['server']['delete']
-            except KeyError:
-                webhook = None
-
             try:
                 server = self.server_manager.find(name=f'^{name}$')
             except ServersFoundException:
                 reply(f'Could not find existing {name}, ignoring')
 
-            self.server_manager.delete(server, webhook)
+            self.server_manager.delete(server, None)
 
         elif self.server_manager.findall(name=f"^{name}$"):
             return reply(f"{name} already exists.")
