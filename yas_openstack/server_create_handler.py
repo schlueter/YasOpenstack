@@ -55,13 +55,11 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         self.bot.log.info(f"Received request for {name} on {branch} from {image}")
 
         if recreate == 're':
-
             try:
                 server = self.server_manager.find(name=f'^{name}$')
+                self.server_manager.delete(server, None)
             except ServersFoundException:
                 reply(f'Could not find existing {name}, ignoring')
-
-            self.server_manager.delete(server, None)
 
         elif self.server_manager.findall(name=f"^{name}$"):
             return reply(f"{name} already exists.")
@@ -76,7 +74,6 @@ class OpenStackServerCreateHandler(OpenStackHandler):
             meta['owner'] = 'unknown'
 
         meta['owner_id'] = data.get('user', None) or data.get('bot_id', 'unknown')
-
         meta['init'] = 'pending'
         meta['branch'] = branch or ''
 
@@ -94,6 +91,5 @@ class OpenStackServerCreateHandler(OpenStackHandler):
                 return reply(forbidden.message)
             # pylint: disable=raising-bad-type
             raise forbidden
-
-        reply(f'Requested creation of {name} with id {server.id}')
+        reply(f'Starting {name}')
         self.bot.log.debug(f'Created used userdata:\n{userdata}')

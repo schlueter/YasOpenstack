@@ -58,7 +58,7 @@ class OpenStackServerListHandler(OpenStackHandler):
         option_string = ", ".join([opt + "=" + options[opt] for opt in options if isinstance(options[opt], str)])
 
         self.bot.api_call('chat.postMessage',
-                      text=f"Found {len(servers)} servers with search options {option_string}:",
+                      text=f"You currently have {len(servers)} instances:",
                       channel=data['channel'],
                       thread_ts=data['ts'],
                       reply_broadcast=True,
