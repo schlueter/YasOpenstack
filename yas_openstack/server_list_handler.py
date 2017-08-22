@@ -58,9 +58,9 @@ class OpenStackServerListHandler(OpenStackHandler):
         option_string = ", ".join([opt + "=" + options[opt] for opt in options if isinstance(options[opt], str)])
 
         self.bot.api_call('chat.postMessage',
-                      text=f"Found {len(servers)} instances:",
-                      channel=data['channel'],
-                      attachments=attachments)
+                          text=f"Found {len(servers)} instances:",
+                          channel=data['channel'],
+                          attachments=attachments)
 
     def parse_server_to_attachment(self, server, metadata, verbose):
 
