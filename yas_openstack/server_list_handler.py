@@ -75,13 +75,9 @@ class OpenStackServerListHandler(OpenStackHandler):
         test = server['metadata'].get('test')
 
         if init == 'done':
-            if test == 'pass':
+            if test in ['pass', 'skipped']:
                 attachment_color = '#7D7'
-            elif test == 'full':
-                attachment_color = '#AEC6CF'
-            elif test == 'quick':
-                attachment_color = '#AEC6CF'
-            elif test == 'started':
+            elif test in ['full', 'quick', 'started']:
                 attachment_color = '#AEC6CF'
             elif test == 'fail':
                 attachment_color = '#FF3'
