@@ -54,6 +54,9 @@ class OpenStackServerCreateHandler(OpenStackHandler):
         recreate, name, branch, meta_string, image, neptune_branch = self.current_match.groups()
         self.bot.log.info(f"Received request for {name} on {branch} from {image}")
 
+        if name.isdigit():
+            reply(f'{name} is not a valid hostname. Numbers-only hostnames are not allowed.')
+
         if recreate == 're':
             try:
                 server = self.server_manager.find(name=f'^{name}$')
