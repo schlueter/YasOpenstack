@@ -29,11 +29,11 @@ class OpenStackServerCreateHandler(OpenStackHandler):
     triggers = ['create', 'launch', 'start']
 
     def __init__(self, bot):
-        super().__init__(r'(re)?(?:launch|start|create) ([-\w]+)'
-                         r'(?: on ([-\w]+:?[-\w/\.]+))?'
+        super().__init__(r'(re)?(?:launch|start|create) ([-a-zA-Z0-9]+)'
+                         r'(?: on ([^\ ]+:?[^\ ]+))?'
                          r'(?: meta(?:data)? (' + self.SEARCH_OPTS_REGEX + '))?'
-                         r'(?: from ([-:/\w]+))?'
-                         r'(?: using ([-:/\w]+))?',
+                         r'(?: from ([^\ ]+))?'
+                         r'(?: using ([^\ ]+))?',
                          bot)
         self.bot.log.debug(f'Initializing OpenStack server create handler with defaults:\n{self.bot.config.__dict__}')
         self.template = self.get_userdata_template()
