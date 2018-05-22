@@ -61,8 +61,8 @@ class OpenStackServerListHandler(OpenStackHandler):
         while attachments:
             self.bot.api_call('chat.postMessage',
                               channel=data['channel'],
-                              attachments=attachments[:100])
-            attachments = attachments[100:]
+                              attachments=attachments[:20])
+            attachments = attachments[20:]
 
     def parse_server_to_attachment(self, server, metadata, verbose):
 
