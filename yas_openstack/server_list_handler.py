@@ -28,7 +28,7 @@ class OpenStackServerListHandler(OpenStackHandler):
             if not opt == '')
         return default_search_options
 
-    def handle(self, data, _):
+    def handle(self, data, reply):
         modifier, raw_search_opts, raw_metadata = self.current_match.groups()
         self.bot.log.debug(f"{data['yas_hash']} raw_search_opts: {raw_search_opts} "
                  "and raw_metadata: {raw_metadata} and modifier: {modifier}")
@@ -57,10 +57,12 @@ class OpenStackServerListHandler(OpenStackHandler):
         options = {**search_opts, **search_opts['metadata']}
         option_string = ", ".join([opt + "=" + options[opt] for opt in options if isinstance(options[opt], str)])
 
-        self.bot.api_call('chat.postMessage',
-                          text=f"Found {len(servers)} instances:",
-                          channel=data['channel'],
-                          attachments=attachments)
+        reply(f"Found {len(servers)} instances:")
+        while attachments:
+            self.bot.api_call('chat.postMessage',
+                              channel=data['channel'],
+                              attachments=attachments[:100])
+            attachments = attachments[100:]
 
     def parse_server_to_attachment(self, server, metadata, verbose):
 
